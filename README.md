@@ -89,6 +89,7 @@ tw-dan/
 ├── references/method.md       # the six-skill method and the rules
 ├── references/data-shape.md   # a worked example of the data (about a bakery, on purpose)
 ├── references/team.md         # the three helpers and the judge
+├── references/update.md       # what to do when the person replies with records or corrections
 ├── assets/report-template.html# draws the report from the data, offline
 ├── scripts/fill.py            # validates the data and builds the report
 └── evals/evals.json           # test cases

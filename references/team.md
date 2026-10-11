@@ -68,4 +68,4 @@ One round only; a second judge round does not help. Change an entry only when th
 
 ## If the host has no helpers
 
-Do the walkthrough yourself (method.md, "Talk it through"), run the three checks in SKILL.md step 4, and set `builtBy: "solo"`. The map is still valid; it has had one mind on it instead of five, and the report says so.
+Do the walkthrough yourself (method.md, "Talk it through"), run the three checks in SKILL.md's fact-check step, and set `builtBy: "solo"`. The map is still valid; it has had one mind on it instead of five, and the report says so.
