@@ -9,9 +9,6 @@ import json
 import os
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE = os.path.join(HERE, "..", "assets", "report-template.html")
-
 LIKELIHOODS = ("leading", "possible", "unlikely")
 STATUSES = ("pass", "fail", "unknown")
 HYP_STATUSES = ("open", "ruled out", "confirmed")
@@ -19,6 +16,12 @@ BASES = ("measured", "reported", "assumed", "outside")
 WHO = ("ai", "you", "client", "client's staff", "vendor")
 KINDS = ("check", "fix", "decide", "ask")
 SECTIONS = ("decompose", "abstract", "reuse", "parallelize", "rubric", "evaluate")
+VERDICTS = {
+    "outside normal": "outside normal",
+    "inside normal": "inside normal",
+    "can't tell yet": "can't tell yet",
+    "cant tell yet": "can't tell yet",
+}
 
 
 def find_loop(items, key):
@@ -42,6 +45,7 @@ def find_loop(items, key):
 
 
 def norm(text):
+    """Lower-case, single-spaced form of a value, for comparing enumerated fields."""
     return " ".join(str(text or "").lower().split())
 
 
@@ -51,6 +55,42 @@ def winpath(path):
     if os.name == "nt" and len(full) > 240 and not full.startswith("\\\\?\\"):
         return "\\\\?\\" + full
     return full
+
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE = winpath(os.path.join(HERE, "..", "assets", "report-template.html"))
+
+
+def objects(seq, label, problems):
+    """Return the dict entries of `seq`; report anything else as a problem instead of crashing."""
+    out = []
+    for i, item in enumerate(list(seq or [])):
+        if isinstance(item, dict):
+            out.append(item)
+        else:
+            problems.append(f"'{label}' entry {i + 1} must be an object with named fields, not {type(item).__name__}.")
+    return out
+
+
+def canonicalise(data):
+    """Rewrite enumerated fields to the exact strings the template compares against."""
+    dec = data.get("decompose") or {}
+    for h in dec.get("hypotheses") or []:
+        h["likelihood"] = norm(h.get("likelihood"))
+        if h.get("status") is not None:
+            h["status"] = norm(h["status"])
+    real = dec.get("isItReal")
+    if isinstance(real, dict) and real.get("verdict"):
+        real["verdict"] = VERDICTS.get(norm(real["verdict"]), real["verdict"])
+    for s in (data.get("parallelize") or {}).get("streams") or []:
+        s["kind"] = norm(s.get("kind"))
+        s["door"] = "one-way" if norm(s.get("door")).startswith("one") else "reversible"
+    for c in (data.get("rubric") or {}).get("criteria") or []:
+        if c.get("status") is not None:
+            c["status"] = norm(c["status"])
+    for f_ in list(data.get("facts") or []) + list(data.get("restsOn") or []):
+        f_["basis"] = norm(f_.get("basis"))
+    return data
 
 
 def main():
@@ -74,22 +114,23 @@ def main():
     problems = []
     if not data.get("title"):
         problems.append("Missing 'title'.")
-    if not data.get("summary"):
-        problems.append("Missing 'summary'.")
-    elif len(data["summary"]) > 3:
+    summary = data.get("summary")
+    if not isinstance(summary, list) or not summary:
+        problems.append("'summary' must be a list of 1 to 3 lines.")
+    elif len(summary) > 3:
         problems.append("The summary has more than 3 lines.")
     for name in SECTIONS:
         sec = data.get(name)
         if not isinstance(sec, dict) or (not sec.get("skipped") and len(sec) == 0):
             problems.append(f"Section '{name}' is missing. Fill it, or write {{\"skipped\": \"<reason>\"}}.")
-    for f_ in list(data.get("facts") or []) + list(data.get("restsOn") or []):
+    for f_ in objects(list(data.get("facts") or []) + list(data.get("restsOn") or []), "facts", problems):
         if norm(f_.get("basis")) not in BASES:
             problems.append(f"Fact '{f_.get('fact')}' needs 'basis' of measured, reported, assumed or outside (one of them, not a mix).")
 
-    dec = data.get("decompose") or {}
+    dec = data.get("decompose") if isinstance(data.get("decompose"), dict) else {}
     if dec.get("skipped"):
         problems.append("'decompose' cannot be skipped.")
-    parts = dec.get("parts") or []
+    parts = objects(dec.get("parts"), "decompose.parts", problems)
     if not parts:
         problems.append("Missing 'decompose.parts'.")
     part_ids = {p.get("id") for p in parts}
@@ -112,10 +153,11 @@ def main():
     deepest = [1]
 
     def check_children(items, level, path):
-        for c in items or []:
+        for c in objects(items, f"children of '{path}'", problems):
             deepest[0] = max(deepest[0], level)
-            if not c.get("name"):
-                problems.append(f"A level-{level} item under '{path}' has no name.")
+            for key in ("name", "question", "check"):
+                if not c.get(key):
+                    problems.append(f"A level-{level} item under '{path}' has no '{key}'.")
             if c.get("children"):
                 if level >= 3:
                     problems.append(f"'{c.get('name')}' goes deeper than level 3.")
@@ -133,10 +175,10 @@ def main():
         problems.append(f"'decompose.depth' says {depth} but the breakdown goes {deepest[0]} level(s) deep. Match them.")
 
     real = dec.get("isItReal")
-    if isinstance(real, dict) and real.get("verdict") and norm(real["verdict"]) not in ("outside normal", "inside normal", "can't tell yet", "cant tell yet"):
+    if isinstance(real, dict) and real.get("verdict") and norm(real["verdict"]) not in VERDICTS:
         problems.append("'decompose.isItReal.verdict' must be 'outside normal', 'inside normal' or \"can't tell yet\".")
 
-    hyps = dec.get("hypotheses") or []
+    hyps = objects(dec.get("hypotheses"), "decompose.hypotheses", problems)
     if len(hyps) < 3:
         problems.append("List at least 3 competing explanations in 'decompose.hypotheses', including one that goes against the obvious answer.")
     seen_rule_outs = {}
@@ -164,21 +206,21 @@ def main():
             except (TypeError, ValueError):
                 problems.append(f"Explanation '{h.get('name')}' has a 'probability' that is not a number.")
     if probs and len(probs) == len(hyps) and not 95 <= sum(probs) <= 105:
-        problems.append(f"The explanations' probabilities add to {sum(probs):g}, not 100.")
+        problems.append(f"The explanations' probabilities add to {sum(probs):g}; make them add to 100 (95 to 105 is accepted).")
     if probs and len(probs) != len(hyps):
         problems.append("Either every explanation has a 'probability' or none does.")
 
-    for u in data.get("unknownUnknowns") or []:
+    for u in objects(data.get("unknownUnknowns"), "unknownUnknowns", problems):
         if not u.get("area") or not u.get("howToFind") or not u.get("whyItMatters"):
             problems.append("Every unknown unknown needs an 'area', a 'whyItMatters' and a 'howToFind'.")
 
-    ab = data.get("abstract") or {}
-    for m in ab.get("mattersNow") or []:
+    ab = data.get("abstract") if isinstance(data.get("abstract"), dict) else {}
+    for m in objects(ab.get("mattersNow"), "abstract.mattersNow", problems):
         if not m.get("lookAt"):
             problems.append(f"'Matters now' item '{m.get('item')}' needs a 'lookAt': the record or test that makes it checkable.")
 
-    pa = data.get("parallelize") or {}
-    streams = pa.get("streams") or []
+    pa = data.get("parallelize") if isinstance(data.get("parallelize"), dict) else {}
+    streams = objects(pa.get("streams"), "parallelize.streams", problems)
     stream_ids = {s.get("id") for s in streams}
     if len(stream_ids) != len(streams):
         problems.append("Stream ids must be unique.")
@@ -205,17 +247,21 @@ def main():
     if loop:
         problems.append(f"Stream '{loop}' waits for itself through other streams. Break the loop.")
 
-    for c in (data.get("rubric") or {}).get("criteria") or []:
+    ru = data.get("rubric") if isinstance(data.get("rubric"), dict) else {}
+    for c in objects(ru.get("criteria"), "rubric.criteria", problems):
         if not c.get("source"):
             problems.append(f"Rubric criterion '{c.get('criterion')}' has no source. Use 'Preference, no source' if there is none.")
+        url = str(c.get("sourceUrl") or "")
+        if url and not url.lower().startswith(("http://", "https://")):
+            problems.append(f"Rubric criterion '{c.get('criterion')}' has a 'sourceUrl' that is not a web address.")
         st = norm(c.get("status")) if c.get("status") is not None else None
         if st is not None and st not in STATUSES:
             problems.append(f"Rubric criterion '{c.get('criterion')}' needs 'status' of pass, fail or unknown.")
         if st in ("pass", "fail") and not c.get("evidence"):
             problems.append(f"Rubric criterion '{c.get('criterion')}' is marked {st} with no 'evidence'. Add the record, or set it to unknown.")
 
-    ev = data.get("evaluate") or {}
-    tests = ev.get("tests") or []
+    ev = data.get("evaluate") if isinstance(data.get("evaluate"), dict) else {}
+    tests = objects(ev.get("tests"), "evaluate.tests", problems)
     signals = [t for t in tests if t.get("signal")]
     if len(signals) > 1:
         problems.append("Only one test can be the 'signal'.")
@@ -238,14 +284,16 @@ def main():
     if built == "team" and not isinstance(rv, list):
         problems.append("A team map needs 'review': an empty list before the judge has run, then the judge's findings, each with 'finding', 'field', 'fixed' and 'note'.")
     if isinstance(rv, list):
-        for r in rv:
+        for r in objects(rv, "review", problems):
             if not r.get("finding") or r.get("fixed") not in (True, False):
                 problems.append("Every review entry needs a 'finding' and 'fixed': true or false.")
                 break
     wt = data.get("walkthrough")
     if not isinstance(wt, list):
         problems.append("Missing 'walkthrough': the questions you wrote about this problem and your answers (at least six in round 1, two in round 2).")
+        wt = []
     else:
+        wt = objects(wt, "walkthrough", problems)
         r1 = [w for w in wt if w.get("round") == 1]
         r2 = [w for w in wt if w.get("round") == 2]
         if len(r1) < 6:
@@ -261,11 +309,13 @@ def main():
     fc = data.get("factChecks")
     if not isinstance(fc, list):
         problems.append("Missing 'factChecks': list every 'verify:' fact with result held, corrected or unchecked (an empty list means you brought no outside facts).")
+        fc = []
     else:
+        fc = objects(fc, "factChecks", problems)
         for item in fc:
             if item.get("result") not in ("held", "corrected", "unchecked"):
                 problems.append(f"Fact check '{item.get('fact')}' needs 'result' of held, corrected or unchecked.")
-    ct = data.get("coverageTest") or {}
+    ct = data.get("coverageTest") if isinstance(data.get("coverageTest"), dict) else {}
     if not ct.get("fitsNoPart") or not ct.get("fitsTwoParts"):
         problems.append("Missing 'coverageTest': name one failure that fits no part and one that fits two, and say you fixed the parts.")
     elif ct.get("fixed") is not True:
@@ -277,16 +327,25 @@ def main():
             print(" - " + p)
         return 1
 
+    canonicalise(data)
     # Escape '</' so text like '</script>' cannot end the data block early.
     payload = json.dumps(data, ensure_ascii=False, indent=1).replace("</", "<\\/").replace("<!--", "<\\u0021--")
-    with open(TEMPLATE, encoding="utf-8") as f:
-        html = f.read()
+    try:
+        with open(TEMPLATE, encoding="utf-8") as f:
+            html = f.read()
+    except OSError as e:
+        print(f"Cannot read the template {TEMPLATE}: {e}")
+        return 1
     if "__REPORT_DATA__" not in html:
         print("The template is missing its __REPORT_DATA__ line.")
         return 1
     html = html.replace("__REPORT_DATA__", payload)
-    with open(out, "w", encoding="utf-8") as f:
-        f.write(html)
+    try:
+        with open(out, "w", encoding="utf-8") as f:
+            f.write(html)
+    except OSError as e:
+        print(f"Cannot write {out}: {e}")
+        return 1
 
     print("Read this top to bottom; it must hold together as one argument:")
     for line in data["summary"]:
