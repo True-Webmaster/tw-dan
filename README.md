@@ -53,7 +53,7 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 | Claude Code **and** the Codex CLI, both logged in, plus Python 3 | Best. On the thorough setting the finished map is checked by the *other* company's AI: Codex checks a map Claude made, and Claude checks a map Codex made. A checker from a different model family catches mistakes the first one is blind to. |
 
 1. **Install Python 3** from [python.org](https://www.python.org/downloads/). It builds and checks the report; without it the skill still works, but the checks don't run.
-2. **Install the other tool and log in once.** Each needs its own paid account (the free plans do not include the command line). Open a terminal and run the line for your system; then run `claude` or `codex` once and follow the login prompts.
+2. **Install the other tool.** Open a terminal and run the line for your system.
 
    Claude Code ([full guide](https://code.claude.com/docs/en/setup)):
 
@@ -76,7 +76,20 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
    ```
 
    Close and reopen the terminal afterwards so the new command is found.
-3. **Check that each answers from the terminal:**
+3. **Log in to each, once.** Each needs its own paid account; the free plans do not include the command line.
+
+   ```bash
+   claude
+   ```
+
+   A browser window opens; sign in with your Claude account, then type `/exit`.
+
+   ```bash
+   codex
+   ```
+
+   Choose "Sign in with ChatGPT", sign in in the browser, then press Ctrl+C to leave.
+4. **Check that each answers from the terminal:**
 
    ```bash
    claude -p "Reply with OK"
@@ -87,8 +100,8 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
    ```
 
    If Claude asks you to log in, run `claude`, type `/login`, and test again; being logged in inside the app doesn't always log in the terminal command. If Codex says a model is not supported, run `codex --version`: some computers have two copies and the terminal runs the older one.
-4. **Allow the cross-check when asked.** The first time, your tool asks permission to run the other one.
-5. **Keep both current** with `claude update` and `codex update` before an important run. If a version number doesn't change afterwards, an older copy is the one your terminal runs.
+5. **Allow the cross-check when asked.** The first time, your tool asks permission to run the other one.
+6. **Keep both current** with `claude update` and `codex update` before an important run. If a version number doesn't change afterwards, an older copy is the one your terminal runs.
 
 If the other tool is missing or fails, the skill uses a same-family judge instead and the report says which judge ran.
 
