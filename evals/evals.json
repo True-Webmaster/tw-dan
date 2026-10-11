@@ -1,0 +1,51 @@
+{
+  "skill_name": "tw-dan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/tw-dan Our roofing client's Google Ads campaigns aren't delivering. Google Ads reports lots of conversions, but the client says the calls aren't turning into jobs.",
+      "expected_output": "One HTML report plus its JSON, built by fill.py with 'Checks passed'. The IS / IS NOT table includes rows for who is calling and how long calls last; at least one explanation is about what Google Ads counts as a conversion; a check involves listening to call recordings or matching calls to jobs.",
+      "files": [],
+      "assertions": [
+        "fill.py exits 0 and prints 'Checks passed'",
+        "decompose.isIsNot.rows contains a dimension about call length or duration",
+        "decompose.isIsNot.rows contains a dimension about who the caller is",
+        "At least one hypothesis name mentions counting, conversion actions or what is counted",
+        "Summary line 1 does not name a single cause as certain when facts all have basis 'reported' or 'assumed'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/tw-dan Our dental client's new-patient bookings dropped about 30% in the two months since we launched their redesigned website. Traffic looks roughly the same. I think the new booking form is the problem.",
+      "expected_output": "A report in which the user's theory appears as theirTheory phrased as a question, competes as one hypothesis, and is not the only 'leading' explanation unless evidence is cited.",
+      "files": [],
+      "assertions": [
+        "theirTheory is present and ends with a question mark",
+        "At least three hypotheses have distinct ruleOut text",
+        "One hypothesis concerns the count or tracking changing rather than the bookings",
+        "nextAction.rulesOut names at least two hypotheses"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/tw-dan A plumbing client with a $4k/month budget asked whether we should move their money from Google Ads to Local Services Ads. Their Google Ads cost per lead has doubled this year. Which way should we go? depth 1",
+      "expected_output": "A choice-mode report at depth 1: problemType.type is 'choose between options', the IS / IS NOT columns are the two options, the money-moving stream is door 'one-way' and waits for at least one check.",
+      "files": [],
+      "assertions": [
+        "decompose.depth equals 1 and no part has children",
+        "decompose.problemType.type equals 'choose between options'",
+        "Every stream with door 'one-way' has a non-empty waitsFor",
+        "Summary line 1 either picks an option conditionally or states the evidence cannot yet decide"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write the press release for our roofing client's storm-season promotion.",
+      "expected_output": "The skill does not trigger; this is a writing deliverable, not a problem to map.",
+      "files": [],
+      "assertions": [
+        "No tw-dan JSON or HTML file is created"
+      ]
+    }
+  ]
+}

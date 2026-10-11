@@ -1,0 +1,49 @@
+---
+name: tw-dan
+description: Human in the Loop map. Turns a client or business problem into one visual HTML report organised by six thinking skills - decompose, abstract, reuse, parallelize, build a rubric, evaluate and improve - with a dependency graph, a breakdown up to 3 levels deep, competing explanations with what each predicts, blind spots (unknown unknowns), work streams that say who does what and what can't be undone, a sourced pass/fail rubric and what the answer depends on. Use when someone says "map this problem", "hitl map", "break this down visually", "what's really going on with this client", or describes a client problem, a drop in results, or a choice between two options they need to think through before acting. Not for writing the deliverable itself, not for ranking or site audits that need live data, and not for finding a bug in a specific piece of code (a slow system or a dispute about where a fault lies is fine).
+compatibility: Python 3 recommended for scripts/fill.py; a manual fallback is documented
+metadata:
+  author: Yan Gonzalez, True Webmaster
+  version: "2.0"
+  reviewed: "2026-10-10"
+---
+
+# Human in the Loop map
+
+Turn one problem into one self-contained HTML report the person can open, read in five minutes, and act on. You do the thinking; a template that is already designed does the drawing. The human keeps the judgment: the map shows where they must decide, and what the answer rests on.
+
+## Rules
+
+- **Assume and label, don't interview.** Make reasonable assumptions, write each one into the report with what changes if it is wrong, and keep going. Ask one question only if you cannot tell what result the person wants at all (for example, they named a client but no problem). Anything else, assume and label it.
+- **Facts before explanations.** Before reasoning, write the facts in a fixed order with their basis (measured, reported, assumed), and turn the person's own theory into a neutral question. It competes as one explanation among the others, with no head start, however confidently it was stated. Models tend to confirm the cause they were handed; this step is what stops it.
+- **Every source is one that exists.** A rubric criterion names a real, checkable source (the client brief, a platform's own documentation, data the person gave you) or says "Preference, no source". A platform's own documentation page counts even if you did not open it this session, as long as you are confident it exists; then `sourceUrl` is welcome. Documents you have not seen and the person did not mention (a signed proposal, a contract) do not exist for this map. If the person's data gives the measurement but the target is yours, that is "Preference, no source". If you know a source but not its exact figure, write "the limit in [source]" rather than a number. Facts you bring from your own knowledge (platform limits, retention periods, laws) go in with "verify:" and how to verify them, once, where the fact first appears; a named law or platform rule counts as a source once it carries that "verify:". If you used a fact that depends on country or state, the region you assumed goes in the assumptions.
+- **Plain language.** The reader runs a business, not a codebase. Name things the way the client would. The "client" can be the person's own business. A sentence that could sit unchanged in another client's report says nothing about this one.
+- **Hold the explanations open until the evidence separates them.** Compare what goes wrong with what goes right, keep at least three competing explanations with what each predicts the records will show, and name the evidence that would rule each one out. "The evidence cannot yet separate A from B" is a valid answer. Recommend a fix only once that evidence is in hand, or label it as conditional. This holds when the person asks "how do we fix / stop / prevent X": the map still diagnoses first, and the fix becomes a work stream that waits for the checks.
+- **The map plans the work.** It does not write the ad, fix the site or call the client.
+
+## Process
+
+1. **Read the problem** and anything attached. Note the goal, the client and the facts you were given. If the person asked for a depth or level ("depth 3", "level 1"), break the problem down that many levels; otherwise use 1 when they gave no records and 2 when they attached data. A first map is a plan of what to look at; it grows when the records arrive. Say in chat, in one line, how you read the problem and that the report takes about ten minutes; then work without narrating.
+2. **Think through the method** in [references/method.md](references/method.md): facts first, then the six skills. It defines each section, what good looks like, when a section is done, and which keys are required; the full data shape is the worked example in [references/data-shape.md](references/data-shape.md), loaded at step 3.
+3. **Write the data** as a JSON file in the person's current folder (or the folder they named), named `tw-dan-<slug>-<YYYY-MM-DD>.json`, where the slug is two to four lowercase words joined by hyphens (`bakery-weekend-orders`). Load [references/data-shape.md](references/data-shape.md) now and follow its shape exactly. Use your file-writing tool, not the shell, so quotes and apostrophes survive.
+4. **Check your own facts, not your reasoning.** Turn every "verify:" fact you brought from your own knowledge into a question. If you have a web tool, open the source and answer from it: the result is `held` or `corrected`. Without a web tool, re-answer from scratch: a fact you are sure of and that agrees is `held` with the note "from memory"; anything you are not sure of is `unchecked`. Record each in the JSON under `factChecks` as `[{ "fact", "result", "note" }]`; correct the map wherever a fact was corrected. Also record the coverage test from method.md's Decompose section ("Map the path and the parts") under `coverageTest`: `{ "fitsNoPart": "<the failure you named>", "fitsTwoParts": "<the failure you named>", "fixed": true }`. fill.py prints both blocks; a map without them does not build. Do not ask yourself to review and improve the map as a whole; that makes maps worse, not better. If a helper agent is available, give it the restated problem and the facts only (not your map), ask it for its parts and competing explanations, and add anything it found that you missed; if none is available, skip this.
+5. **Build and check the report** with the helper script in this skill's folder, using full paths for both files:
+
+   ```
+   python <skill-folder>/scripts/fill.py tw-dan-<slug>-<date>.json tw-dan-<slug>-<date>.html
+   ```
+
+   It checks that the JSON is valid; that each of the six skill sections is present or skipped with a reason; that every `dependsOn` and `waitsFor` id exists without loops; that every explanation has `predicts`, `ruleOut`, `cheapestCheck` and a valid `likelihood`, that no two share a `ruleOut`, and that probabilities, if given, are given for all of them and add to 100 (within 5); that every stream has `who` and `door` and no one-way stream sits in wave 1; that every rubric criterion has a source, a valid `status`, and evidence behind any pass or fail; that every "matters now" item has a `lookAt`; and that the deepest level you wrote equals `depth`. Then it writes the report, prints the summary and the takeaways in order, and prints "Checks passed". Read that printed sequence top to bottom: it must read as one argument. If it doesn't, or if it prints problems, fix the JSON and run it again. Keep the JSON file next to the report: it is what you update when the person replies.
+
+   If Python isn't available: copy [assets/report-template.html](assets/report-template.html) to the `.html` name and replace the single line `__REPORT_DATA__` with the JSON, writing every `</` as `<\/`. Change nothing else; the page draws its own graphs, offline, from that data.
+6. **Open it** for the person (`start <file>` on Windows, `open <file>` on macOS, `xdg-open <file>` on Linux). If you cannot open a browser from where you are, say so and give the full path instead. In chat, one message: a line naming the file, the three summary lines, the next action, and the one open question that would most change the answer, with your guess. Nothing else.
+
+## When the person replies
+
+They will often correct an assumption, answer an open question or send a record. Keep the same file names and `date`; the `revisions` list carries today's date and one line on what moved.
+
+1. **Decide what the new facts settle.** Any record may rule an explanation in or out, not only the evidence its `ruleOut` named; say which record in `evidence`. A ruled-out explanation stays in the file with `status: "ruled out"`, `probability: 0` and `likelihood: "unlikely"`; the report collapses it to one line. Add the new facts to `facts` with their basis, and move an `isItReal` of "can't tell yet" if the records now say.
+2. **If the front-runners named in summary line 1 changed, redo Decompose from the top:** new parts, new explanations (keep the ruled-out ones), new coverage test. If they did not change, edit in place.
+3. **Bring every other section into line** so the printed sequence still reads as one argument: summary, `confidence`, `restsOn`, blind spots (delete the ones the records covered and list them in `revisions`), abstract, streams, rubric (`pass` or `fail` only when the record meets the whole condition; partial evidence stays `unknown` with the evidence noted), tests, "it depends", assumptions, open questions, next action. New outside facts go through step 4 again. If records arrived and the map was at depth 1, you may go to depth 2.
+4. **Build and open** as in steps 5 and 6.
+5. **In chat:** when the front-runners changed, say in one line what the records settled, then the step-6 message; otherwise one line: what changed and which explanation it ruled in or out.

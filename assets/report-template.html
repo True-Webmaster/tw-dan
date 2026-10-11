@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Human in the Loop map</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14191f;--muted:#5b6672;--line:#d9dee4;--accent:#0679c2;--accent-soft:#e3f1fb;--good:#1f8a5b;--good-soft:#e2f4ea;--bad:#c0392b;--bad-soft:#fbe7e4;--warn:#9a6a00;--warn-soft:#fbf1d9;--shadow:0 1px 3px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1117;--card:#121a22;--ink:#eef2f5;--muted:#9aa7b3;--line:#26323d;--accent:#3fb0f5;--accent-soft:#0f2c40;--good:#4cc68f;--good-soft:#11301f;--bad:#ff8a7a;--bad-soft:#3a1714;--warn:#f1c969;--warn-soft:#352a0c;--shadow:none}}
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body{margin:0}
+main{max-width:1080px;margin:0 auto;padding:40px 20px 80px}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.15;margin:6px 0 10px;letter-spacing:-.5px}
+h2{font-size:22px;margin:0 0 4px}
+h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 10px}
+.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+.problem{font-size:18px;color:var(--muted);max-width:800px}
+.meta{font-size:13px;color:var(--muted);margin-top:6px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;margin:22px 0;box-shadow:var(--shadow)}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-num{font-size:12px;font-weight:800;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+.takeaway{color:var(--muted);font-size:15px;margin-bottom:16px}
+.summary{border-left:4px solid var(--accent)}
+.summary ol{margin:0;padding-left:20px;font-size:17px}
+.summary li{margin:6px 0}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--bg)}
+.card .why{font-size:14px;color:var(--muted)}
+.col-title{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.keep .col-title{color:var(--good)}.aside .col-title{color:var(--muted)}
+.keep .card{border-left:4px solid var(--good)}.aside .card{opacity:.85}
+.badge{display:inline-block;white-space:nowrap;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:999px;vertical-align:middle}
+.b-yes{background:var(--good-soft);color:var(--good)}.b-no{background:var(--line);color:var(--muted)}
+.b-pass{background:var(--good-soft);color:var(--good)}.b-fail{background:var(--bad-soft);color:var(--bad)}.b-unknown{background:var(--warn-soft);color:var(--warn)}
+.b-strong{background:var(--accent-soft);color:var(--accent)}
+.diagram{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px}
+.diagram svg{display:block;max-width:none}
+.diagram svg text{fill:var(--ink);font:13px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.diagram svg .sub{fill:var(--muted);font-size:11.5px}
+.diagram svg .node{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.diagram svg .node.root{stroke:var(--accent);stroke-width:2.5}
+.diagram svg .node.warn{stroke:var(--bad);stroke-width:2.5}
+.diagram svg .meta{fill:var(--accent);font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.facts{margin:0 0 4px;padding-left:0;list-style:none}.facts li{margin:5px 0}
+.hyp.confirmed{border-left:4px solid var(--good)}
+.assume .why,.questions .why{display:block}
+.diagram svg .edge{fill:none;stroke:var(--accent);stroke-width:1.6;opacity:.75}
+.diagram svg .col{fill:var(--muted);font-size:11px;font-weight:700;letter-spacing:1.5px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:2px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td a{color:var(--accent)}
+.table-wrap{overflow-x:auto}
+.depends .card{border-left:4px solid var(--warn)}
+.if{font-size:14px;margin-top:6px}.if b{color:var(--accent)}
+.assume li,.questions li{margin:4px 0}
+.next{border:2px solid var(--accent);background:var(--accent-soft)}
+.next p{font-size:18px;font-weight:600;margin:0}
+.legend{font-size:13px;color:var(--muted);margin-top:8px}
+footer{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
+.fallback{font-size:14px;color:var(--muted)}
+.levels{display:flex;align-items:center;gap:6px;margin:6px 0 12px;font-size:14px;color:var(--muted)}
+.levels button{font:inherit;font-weight:700;min-width:36px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.levels button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tree-box .tree{list-style:none;margin:0;padding:0}
+.tree-box .tree .tree{margin-left:18px;padding-left:16px;border-left:2px solid var(--line)}
+.tree-box li{margin:8px 0}
+.tnode{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.tnode .tq{color:var(--muted)}
+.tnode .why{font-size:13px;color:var(--muted);margin-top:2px}
+.lvl{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px;margin-right:8px;vertical-align:1px}
+.tree-box[data-show="1"] li[data-level="2"],.tree-box[data-show="1"] li[data-level="3"],.tree-box[data-show="2"] li[data-level="3"]{display:none}
+.blind .card{border-left:4px solid var(--bad)}
+.gapcard{border-left:4px solid var(--accent)}
+.hyp h3 .badge{margin-left:4px}
+.stepback .col-title{color:var(--accent)}
+.stepback .warn{border-left:4px solid var(--warn)}
+.stepback .warn .col-title{color:var(--warn)}
+@media print{section{break-inside:avoid;box-shadow:none}html{background:#fff}}
+</style>
+</head>
+<body>
+<main id="app"><p class="fallback">This report draws itself from the data inside the file. If you see this line, open the file in a web browser.</p></main>
+
+<!-- The agent fills this JSON block. Everything below it renders the report. -->
+<script id="report-data" type="application/json">
+__REPORT_DATA__
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var data;
+  try { data = JSON.parse(document.getElementById("report-data").textContent); }
+  catch (e) { document.getElementById("app").innerHTML = "<p>The report data could not be read: " + String(e.message).replace(/</g, "&lt;") + "</p>"; return; }
+
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    for (var k in (attrs || {})) { if (k === "text") n.textContent = attrs[k]; else if (k === "cls") n.className = attrs[k]; else n.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function svg(tag, attrs) { var n = document.createElementNS(SVGNS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); return n; }
+  function arr(x) { return Array.isArray(x) ? x : []; }
+  function badge(kind, label) { return el("span", { cls: "badge b-" + kind, text: label }); }
+  function section(num, title, takeaway, body, skipped) {
+    var s = el("section", {}, [el("div", { cls: "sec-head" }, [el("span", { cls: "sec-num", text: num }), el("h2", { text: title })])]);
+    if (skipped) { s.appendChild(el("p", { cls: "takeaway" }, [el("b", { text: "Skipped: " }), String(skipped)])); return s; }
+    if (takeaway) s.appendChild(el("p", { cls: "takeaway", text: takeaway }));
+    body.forEach(function (b) { if (b) s.appendChild(b); });
+    return s;
+  }
+
+  // Word-wrap text into lines of at most `max` characters.
+  function wrap(text, max) {
+    var words = String(text || "").split(/\s+/), lines = [], cur = "";
+    words.forEach(function (w) { if ((cur + " " + w).trim().length > max && cur) { lines.push(cur); cur = w; } else { cur = (cur + " " + w).trim(); } });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  // Layered graph: columns by dependency depth, arrows from prerequisite to dependant.
+  function layered(items, opts) {
+    var byId = {}; items.forEach(function (it) { byId[it.id] = it; });
+    var depth = {};
+    function d(id, seen) {
+      if (depth[id] != null) return depth[id];
+      if (seen[id]) return 0;
+      seen[id] = true;
+      var deps = arr(byId[id] && byId[id].deps).filter(function (x) { return byId[x]; });
+      var v = deps.length ? 1 + Math.max.apply(null, deps.map(function (x) { return d(x, seen); })) : 0;
+      depth[id] = v; return v;
+    }
+    items.forEach(function (it) { d(it.id, {}); });
+    var cols = [];
+    items.forEach(function (it) { (cols[depth[it.id]] = cols[depth[it.id]] || []).push(it); });
+    // Order each column by the average position of its prerequisites so arrows cross as little as possible.
+    var order = {};
+    cols.forEach(function (col, ci) {
+      if (ci) col.sort(function (a, b) {
+        function bary(it) { var ds = arr(it.deps).filter(function (x) { return order[x] != null; }); return ds.length ? ds.reduce(function (s, x) { return s + order[x]; }, 0) / ds.length : 1e9; }
+        return bary(a) - bary(b);
+      });
+      col.forEach(function (it, i) { order[it.id] = i; });
+    });
+    var gapX = 46, gapY = 18, padTop = opts.colLabels ? 34 : 12, lineH = 16;
+    var avail = Math.max(320, (document.getElementById("app").clientWidth || 1000) - 115);
+    var W = Math.round(Math.max(150, Math.min(opts.nodeW, (avail - 24 - (cols.length - 1) * gapX) / cols.length)));
+    var wrapAt = Math.max(16, Math.round(opts.wrapAt * W / opts.nodeW));
+    var pos = {}, heights = [];
+    cols.forEach(function (col, ci) {
+      var y = padTop;
+      col.forEach(function (it) {
+        var title = wrap(it.title, wrapAt), sub = it.sub ? wrap(it.sub, wrapAt + 4).slice(0, 3) : [], meta = it.meta ? wrap(it.meta, wrapAt + 6).slice(0, 2) : [];
+        var h = 16 + title.length * lineH + (sub.length ? 6 + sub.length * 14 : 0) + (meta.length ? 6 + meta.length * 13 : 0) + 10;
+        pos[it.id] = { x: 12 + ci * (W + gapX), y: y, h: h, title: title, sub: sub, meta: meta, it: it };
+        y += h + gapY;
+      });
+      heights.push(y);
+    });
+    var width = 24 + cols.length * W + (cols.length - 1) * gapX, height = Math.max.apply(null, heights.concat([60])) + 4;
+    var s = svg("svg", { width: width, height: height, viewBox: "0 0 " + width + " " + height, role: "img", "aria-label": opts.label });
+    if (opts.colLabels) cols.forEach(function (_, ci) { var t = svg("text", { x: 12 + ci * (W + gapX), y: 18, "class": "col" }); t.textContent = opts.colLabels(ci); s.appendChild(t); });
+    items.forEach(function (it) {
+      arr(it.deps).forEach(function (dep) {
+        var a = pos[dep], b = pos[it.id]; if (!a || !b) return;
+        var x1 = a.x + W, y1 = a.y + a.h / 2, x2 = b.x, y2 = b.y + b.h / 2, mx = (x1 + x2) / 2;
+        s.appendChild(svg("path", { d: "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + (x2 - 6) + "," + y2, "class": "edge", "marker-end": "url(#arrow)" }));
+      });
+    });
+    var defs = svg("defs", {}), m = svg("marker", { id: "arrow", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
+    m.appendChild(svg("path", { d: "M0,0 L10,5 L0,10 z", fill: "currentColor", style: "color:var(--accent)" })); defs.appendChild(m); s.insertBefore(defs, s.firstChild);
+    Object.keys(pos).forEach(function (id) {
+      var p = pos[id], g = svg("g", {});
+      g.appendChild(svg("rect", { x: p.x, y: p.y, width: W, height: p.h, rx: 8, "class": "node" + (p.it.root ? " root" : "") + (p.it.warn ? " warn" : "") }));
+      var ty = p.y + 20;
+      p.title.forEach(function (line) { var t = svg("text", { x: p.x + 10, y: ty, "font-weight": 700 }); t.textContent = line; g.appendChild(t); ty += lineH; });
+      if (p.sub.length) ty += 4;
+      p.sub.forEach(function (line) { var t = svg("text", { x: p.x + 10, y: ty, "class": "sub" }); t.textContent = line; g.appendChild(t); ty += 14; });
+      if (p.meta.length) ty += 4;
+      p.meta.forEach(function (line) { var t = svg("text", { x: p.x + 10, y: ty, "class": "meta" }); t.textContent = line; g.appendChild(t); ty += 13; });
+      s.appendChild(g);
+    });
+    return el("div", { cls: "diagram" }, [s]);
+  }
+
+  var app = document.getElementById("app"); app.innerHTML = "";
+
+  // Header
+  app.appendChild(el("p", { cls: "eyebrow", text: "Human in the Loop map" }));
+  if (data.title) document.title = data.title + " · Human in the Loop map";
+  app.appendChild(el("h1", { text: data.title || "Problem map" }));
+  if (data.problem) app.appendChild(el("p", { cls: "problem", text: data.problem }));
+  if (data.restated) app.appendChild(el("p", { cls: "meta" }, [el("b", { text: "How I read this: " }), data.restated]));
+  if (data.theirTheory) app.appendChild(el("p", { cls: "meta" }, [el("b", { text: "Your theory, as a question: " }), data.theirTheory, " It competes below with no head start."]));
+  app.appendChild(el("p", { cls: "meta", text: [data.client, data.date].filter(Boolean).join(" · ") }));
+
+  // Summary, with how much to trust it and what would make it wrong.
+  var conf = data.confidence || {};
+  var confKind = { low: "unknown", moderate: "strong", high: "pass" };
+  var sum = section("Answer first", "Summary", null, [
+    el("ol", {}, arr(data.summary).map(function (s) { return el("li", { text: s }); })),
+    conf.level ? el("p", { cls: "if", style: "margin-top:12px" }, [badge(confKind[String(conf.level).toLowerCase()] || "unknown", "Confidence: " + conf.level), conf.why ? " " + conf.why : ""]) : null,
+    arr(data.restsOn).length ? el("p", { cls: "if" }, [el("b", { text: "This answer rests on: " })].concat(arr(data.restsOn).map(function (r, i) { var b = String(r.basis || "assumed").toLowerCase(); return el("span", {}, [(i ? "; " : ""), r.fact || "", " ", badge({ measured: "pass", reported: "unknown", assumed: "no", outside: "fail" }[b] || "unknown", b)]); }))) : null,
+    arr(data.revisions).length ? el("div", { cls: "legend" }, [el("b", { text: "Changed since the last run: " })].concat(arr(data.revisions).map(function (r) { return el("span", { text: (r.date ? r.date + ": " : "") + (r.changed || "") + " " }); }))) : null
+  ]);
+  sum.classList.add("summary"); app.appendChild(sum);
+
+  // 1 Decompose
+  var dec = data.decompose || {};
+  var parts = arr(dec.parts).map(function (p) { return { id: p.id, title: p.name, sub: p.question, deps: p.dependsOn, root: !arr(p.dependsOn).length }; });
+  // Breakdown tree: level 1 = the parts, level 2 and 3 = their children.
+  var maxLevel = 1;
+  function treeList(list, lvl) {
+    if (!arr(list).length || lvl > 3) return null;
+    maxLevel = Math.max(maxLevel, lvl);
+    return el("ul", { cls: "tree" }, arr(list).map(function (p) {
+      return el("li", { "data-level": lvl }, [
+        el("div", { cls: "tnode" }, [el("span", { cls: "lvl", text: "L" + lvl }), el("strong", { text: p.name }), p.question ? el("span", { cls: "tq", text: " · " + p.question }) : null, p.check ? el("div", { cls: "why", text: "Check: " + p.check }) : null]),
+        treeList(p.children, lvl + 1)
+      ]);
+    }));
+  }
+  var tree = treeList(dec.parts, 1);
+  var treeBox = el("div", { cls: "tree-box" }, [tree]);
+  var levelBar = null;
+  var startLevel = Math.min(maxLevel, Math.max(1, parseInt(dec.depth, 10) || maxLevel));
+  if (maxLevel > 1) {
+    levelBar = el("div", { cls: "levels", role: "group", "aria-label": "Breakdown depth" }, [el("span", { text: "Show levels: " })]);
+    for (var lv = 1; lv <= maxLevel; lv++) (function (n) {
+      var b = el("button", { type: "button", text: String(n), "aria-pressed": n === startLevel ? "true" : "false" });
+      b.addEventListener("click", function () {
+        treeBox.setAttribute("data-show", n);
+        levelBar.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      });
+      levelBar.appendChild(b);
+    })(lv);
+    treeBox.setAttribute("data-show", startLevel);
+  }
+  app.appendChild(section("1 · Decompose", "Find the parts and how they connect", dec.takeaway, [
+    parts.length ? layered(parts, { nodeW: 230, wrapAt: 28, label: "Parts of the problem and what depends on what" }) : null,
+    el("p", { cls: "legend", text: "Arrows point from a part to the parts that depend on it. Left column: start here." }),
+    el("h3", { text: maxLevel > 1 ? "Breakdown, " + maxLevel + " levels deep" : "Breakdown", style: "margin-top:18px" }),
+    levelBar,
+    treeBox
+  ]));
+
+  // Diagnose: the gap, IS / IS NOT, competing explanations, contributing factors.
+  var hyp = arr(dec.hypotheses), iin = dec.isIsNot || {}, facts = arr(data.facts), changes = arr(dec.changes), real = dec.isItReal;
+  if (hyp.length || arr(iin.rows).length || dec.gap || facts.length) {
+    var lk = { leading: ["strong", "Leading"], possible: ["unknown", "Possible"], unlikely: ["no", "Unlikely"] };
+    var basisKind = { measured: "pass", reported: "unknown", assumed: "no", outside: "fail" };
+    var diag = [];
+    if (facts.length) diag.push(el("h3", { text: "What we know" }), el("ul", { cls: "facts" }, facts.map(function (f) {
+      var b = String(f.basis || "reported").toLowerCase();
+      return el("li", {}, [badge(basisKind[b] || "unknown", b), " ", f.fact || ""]);
+    })));
+    if (dec.gap || dec.problemType || real || dec.impact || dec.detection) diag.push(el("div", { cls: "card gapcard", style: facts.length ? "margin-top:14px" : "" }, [
+      dec.gap ? el("p", {}, [el("b", { text: "The gap: " }), dec.gap]) : null,
+      real ? el("p", { cls: "if" }, [el("b", { text: "Is it real? " }), (real.verdict || "") + (real.why ? " · " + real.why : "")]) : null,
+      dec.impact ? el("p", { cls: "if" }, [el("b", { text: "What it costs: " }), dec.impact]) : null,
+      dec.detection ? el("p", { cls: "if" }, [el("b", { text: "How it was noticed: " }), dec.detection]) : null,
+      dec.problemType ? el("p", { cls: "why" }, [el("b", { text: "Problem type: " }), (dec.problemType.type || "") + (dec.problemType.why ? " · " + dec.problemType.why : "")]) : null
+    ]));
+    if (changes.length) diag.push(el("h3", { text: "What changed around the time it started", style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
+      el("thead", {}, [el("tr", {}, [el("th", { text: "What" }), el("th", { text: "When" }), el("th", { text: "Who" })])]),
+      el("tbody", {}, changes.map(function (c) { return el("tr", {}, [el("td", { text: c.what }), el("td", { text: c.when || "unknown" }), el("td", { text: c.who || "unknown" })]); }))
+    ])]));
+    if (arr(iin.rows).length) diag.push(el("h3", { text: "IS / IS NOT", style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
+      el("thead", {}, [el("tr", {}, [el("th", { text: "Dimension" }), el("th", { text: "IS: " + (iin.is || "the problem") }), el("th", { text: "IS NOT: " + (iin.isNot || "closest case that works") }), el("th", { text: "What's distinctive" })])]),
+      el("tbody", {}, arr(iin.rows).map(function (r) { return el("tr", {}, [el("td", { text: r.dimension }), el("td", { text: r.is }), el("td", { text: r.isNot }), el("td", { text: r.distinction })]); }))
+    ])]));
+    if (hyp.length) {
+      var open = hyp.filter(function (h) { return h.status !== "ruled out"; }), closed = hyp.filter(function (h) { return h.status === "ruled out"; });
+      diag.push(el("h3", { text: "Competing explanations", style: "margin-top:18px" }), el("div", { cls: "grid g2" }, open.map(function (h) {
+        var k = lk[h.likelihood] || lk.possible;
+        var label = k[1] + (h.probability != null ? " · " + h.probability + "%" : "");
+        return el("div", { cls: "card hyp" + (h.status === "confirmed" ? " confirmed" : "") }, [
+          el("h3", {}, [h.name + " ", badge(h.status === "confirmed" ? "pass" : k[0], h.status === "confirmed" ? "Confirmed" : label), h.danger ? badge("fail", "Check first") : null]),
+          h.predicts ? el("p", { cls: "if" }, [el("b", { text: "If true, the records show: " }), h.predicts]) : null,
+          h.explains ? el("p", { cls: "if" }, [el("b", { text: "Explains: " }), h.explains]) : null,
+          h.doesNotExplain ? el("p", { cls: "if" }, [el("b", { text: "Doesn't explain: " }), h.doesNotExplain]) : null,
+          h.ruleOut ? el("p", { cls: "if" }, [el("b", { text: "Ruled out if: " }), h.ruleOut]) : null,
+          h.cheapestCheck ? el("p", { cls: "if" }, [el("b", { text: "Cheapest check: " }), h.cheapestCheck]) : null,
+          h.evidence ? el("p", { cls: "if" }, [el("b", { text: "Evidence so far: " }), h.evidence]) : null
+        ]);
+      })));
+      if (closed.length) diag.push(el("p", { cls: "legend" }, [el("b", { text: "Ruled out: " })].concat(closed.map(function (h, i) { return el("span", { text: (i ? "; " : "") + h.name + (h.evidence ? " (" + h.evidence + ")" : "") }); }))));
+      diag.push(el("p", { cls: "legend", text: "Leading: the front-runner on the evidence in hand. Possible: could be, not yet separated from the others. Unlikely: would need something surprising to be true. Percentages are rough and add to 100. \"Check first\" marks an explanation that is cheap to miss and costly if true." }));
+    }
+    if (arr(dec.contributingFactors).length) diag.push(el("h3", { text: "Factors that may only cause it together", style: "margin-top:18px" }), el("ul", {}, arr(dec.contributingFactors).map(function (f) { return el("li", { text: f }); })));
+    app.appendChild(section("Diagnose", "What could explain it", "Don't fix anything until the cheapest checks tell these explanations apart.", diag));
+  }
+
+  // Unknown unknowns: blind spots the person may not know to ask about.
+  var uu = arr(data.unknownUnknowns);
+  if (uu.length) {
+    var uuSec = section("Blind spots", "Unknown unknowns", "Things you may not know to ask about. Each one is worth a quick check before you commit.", [el("div", { cls: "grid g2" }, uu.map(function (u) {
+      return el("div", { cls: "card" }, [el("h3", { text: u.area }), el("p", { cls: "why", text: u.whyItMatters || "" }), u.howToFind ? el("p", { cls: "if" }, [el("b", { text: "How to find out: " }), u.howToFind]) : null]);
+    }))]);
+    uuSec.classList.add("blind"); app.appendChild(uuSec);
+  }
+
+  // 2 Abstract
+  var ab = data.abstract || {};
+  function abCol(cls, title, list) { return el("div", { cls: cls }, [el("div", { cls: "col-title", text: title })].concat(arr(list).map(function (x) { return el("div", { cls: "card", style: "margin-bottom:10px" }, [el("h3", { text: x.item }), el("p", { cls: "why", text: x.why }), x.lookAt ? el("p", { cls: "if" }, [el("b", { text: "Look at: " }), x.lookAt]) : null]); }))); }
+  var sb = ab.stepBack;
+  var stepBack = sb ? el("div", { cls: "grid g3 stepback", style: "margin-bottom:16px" }, [
+    el("div", { cls: "card" }, [el("div", { cls: "col-title", text: "What we measure" }), el("p", { text: sb.measure || "" })]),
+    el("div", { cls: "card" }, [el("div", { cls: "col-title", text: "What we actually want" }), el("p", { text: sb.goal || "" })]),
+    el("div", { cls: "card warn" }, [el("div", { cls: "col-title", text: "Where they part ways" }), el("p", { text: sb.gap || "" })])
+  ]) : null;
+  app.appendChild(section("2 · Abstract", "Keep what matters", ab.takeaway, [stepBack, el("div", { cls: "grid g2" }, [abCol("keep", "Matters now", ab.mattersNow), abCol("aside", "Set aside for now", ab.setAside)])], ab.skipped));
+
+  // 3 Reuse
+  var re = data.reuse || {};
+  app.appendChild(section("3 · Reuse", "Call what exists", re.takeaway, [el("div", { cls: "grid g3" }, arr(re.steps).map(function (r) {
+    return el("div", { cls: "card" }, [el("h3", {}, [r.step + " ", r.makeSkill ? badge("yes", "Worth saving") : badge("no", "One-off")]), el("p", { cls: "why", text: "Repeats: " + (r.repeatsWhere || "") }), el("p", { cls: "why", text: r.why || "" })]);
+  }))], re.skipped));
+
+  // 4 Parallelize
+  var pa = data.parallelize || {};
+  function streamMeta(w) {
+    var bits = [];
+    if (w.who) bits.push(String(w.who));
+    if (w.kind) bits.push(String(w.kind));
+    if (w.door) bits.push(String(w.door).toLowerCase().indexOf("one") === 0 ? "can't be undone" : "reversible");
+    return bits.join(" · ");
+  }
+  var streams = arr(pa.streams).map(function (w) { return { id: w.id, title: w.name, sub: w.brief, meta: streamMeta(w), deps: w.waitsFor, warn: w.door && String(w.door).toLowerCase().indexOf("one") === 0 }; });
+  var fails = arr(pa.streams).filter(function (w) { return w.failsIf; });
+  app.appendChild(section("4 · Parallelize", "Run independent work at the same time", pa.takeaway, [
+    streams.length ? layered(streams, { nodeW: 230, wrapAt: 28, label: "Work streams by wave", colLabels: function (ci) { return ci === 0 ? "WAVE 1 · START NOW, IN PARALLEL" : "WAVE " + (ci + 1) + " · AFTER WAVE " + ci; } }) : null,
+    el("p", { cls: "legend", text: "Everything in the same wave can run at the same time. An arrow means that stream waits for the other one's result. The small line under each stream says who does it, what kind of work it is, and whether it can be undone; a red border means it can't." }),
+    fails.length ? el("div", { style: "margin-top:12px" }, [el("h3", { text: "If the fix fails, it is probably because" })].concat(fails.map(function (w) { return el("p", { cls: "if" }, [el("b", { text: w.name + ": " }), w.failsIf]); }))) : null
+  ], pa.skipped));
+
+  // 5 Rubric
+  var ru = data.rubric || {};
+  var statusLabel = { pass: "Pass", fail: "Fail", unknown: "Not checked" };
+  var rows = arr(ru.criteria).map(function (c) {
+    var src = c.sourceUrl ? el("a", { href: c.sourceUrl, text: c.source || c.sourceUrl, target: "_blank", rel: "noopener" }) : el("span", { text: c.source || "Preference, no source" });
+    var st = statusLabel[c.status] ? c.status : "unknown";
+    return el("tr", {}, [el("td", { text: c.criterion }), el("td", {}, [src]), el("td", { text: c.pass }), el("td", { text: c.fail }), el("td", { text: c.measure }), el("td", {}, [badge(st, statusLabel[st]), c.evidence ? el("div", { cls: "why", text: c.evidence }) : null])]);
+  });
+  var allPref = arr(ru.criteria).length && arr(ru.criteria).every(function (c) { return /^preference/i.test(String(c.source || "")); });
+  app.appendChild(section("5 · Build a rubric", "Decide what passes", ru.takeaway, [el("div", { cls: "table-wrap" }, [el("table", {}, [
+    el("thead", {}, [el("tr", {}, ["Criterion", "Source", "Pass", "Fail", "How to measure", "Status"].map(function (h) { return el("th", { text: h }); }))]),
+    el("tbody", {}, rows)
+  ])]), allPref ? el("p", { cls: "legend", text: "No agreed targets yet: this table is the list to agree with the client. A criterion gets a source once a brief, a platform rule or the client's own sign-off backs it." }) : null], ru.skipped));
+
+  // 6 Evaluate and improve
+  var ev = data.evaluate || {};
+  var hasExpect = arr(ev.tests).some(function (t) { return t.expect; });
+  var tests = el("div", { cls: "table-wrap" }, [el("table", {}, [
+    el("thead", {}, [el("tr", {}, ["Test", "How"].concat(hasExpect ? ["Expect to see"] : [], ["When"]).map(function (h) { return el("th", { text: h }); }))]),
+    el("tbody", {}, arr(ev.tests).map(function (t) {
+      return el("tr", {}, [el("td", {}, [t.test || "", t.signal ? " " : null, t.signal ? badge("strong", "The signal") : null]), el("td", { text: t.how })].concat(hasExpect ? [el("td", { text: t.expect || "" })] : [], [el("td", { text: t.when })]));
+    }))
+  ])]);
+  var depends = el("div", { cls: "grid g2 depends", style: "margin-top:16px" }, arr(ev.itDepends).map(function (x) {
+    return el("div", { cls: "card" }, [el("h3", { text: "It depends on: " + x.condition }), el("p", { cls: "if" }, [el("b", { text: "If yes: " }), x.ifTrue || ""]), el("p", { cls: "if" }, [el("b", { text: "If no: " }), x.ifFalse || ""])]);
+  }));
+  app.appendChild(section("6 · Evaluate and improve", "Test, correct, retest", ev.takeaway, [tests, hasExpect ? el("p", { cls: "legend", text: "\"The signal\" is the one check that stays red while the problem exists and goes green when it is gone." }) : null, depends], ev.skipped));
+
+  // How the map was checked: the agent's fact checks and the coverage test.
+  var fcs = arr(data.factChecks), cov = data.coverageTest;
+  if (fcs.length || cov) {
+    var fcKind = { held: "pass", corrected: "unknown", unchecked: "fail" };
+    app.appendChild(section("Checked", "How this map was checked", "Facts the map brought from outside, and the test that every failure fits exactly one part.", [
+      fcs.length ? el("ul", { cls: "facts" }, fcs.map(function (c) { var r = String(c.result || "unchecked").toLowerCase(); return el("li", {}, [badge(fcKind[r] || "unknown", r), " ", c.fact || "", c.note ? el("span", { cls: "why", text: " · " + c.note }) : null]); })) : el("p", { cls: "why", text: "No outside facts were brought in." }),
+      cov ? el("div", { cls: "card", style: "margin-top:12px" }, [el("p", { cls: "if" }, [el("b", { text: "A failure that fitted no part: " }), cov.fitsNoPart || ""]), el("p", { cls: "if" }, [el("b", { text: "A failure that fitted two: " }), cov.fitsTwoParts || ""])]) : null
+    ]));
+  }
+
+  // Assumptions and open questions. Each may be a plain string or an object.
+  if (arr(data.assumptions).length || arr(data.openQuestions).length) {
+    app.appendChild(section("Check these", "Assumptions and open questions", "The map was built without asking you questions. Correct anything below and run it again.", [el("div", { cls: "grid g2" }, [
+      el("div", {}, [el("div", { cls: "col-title", text: "Assumed" }), el("ul", { cls: "assume" }, arr(data.assumptions).map(function (a) {
+        if (typeof a === "string") return el("li", { text: a });
+        return el("li", {}, [a.assumption || "", a.ifWrong ? el("span", { cls: "why", text: "If wrong: " + a.ifWrong }) : null, a.check ? el("span", { cls: "why", text: "Check: " + a.check }) : null]);
+      }))]),
+      el("div", {}, [el("div", { cls: "col-title", text: "Still open" }), el("ul", { cls: "questions" }, arr(data.openQuestions).map(function (q) {
+        if (typeof q === "string") return el("li", { text: q });
+        return el("li", {}, [q.question || "", q.whoCanAnswer ? el("span", { cls: "why", text: "Ask: " + q.whoCanAnswer }) : null, q.ourGuess ? el("span", { cls: "why", text: "Our guess: " + q.ourGuess }) : null, q.changesWhat ? el("span", { cls: "why", text: "Changes: " + q.changesWhat }) : null]);
+      }))])
+    ])]));
+  }
+
+  // Next action
+  var na = data.nextAction;
+  if (na) {
+    var naText = typeof na === "string" ? na : (na.action || ""), naMeta = typeof na === "string" ? "" : [na.owner ? "Who: " + na.owner : "", na.by ? "By: " + na.by : "", na.rulesOut ? "Settles: " + na.rulesOut : ""].filter(Boolean).join(" · ");
+    var nx = section("Do this next", "Next action", null, [el("p", { text: naText }), naMeta ? el("p", { cls: "legend", text: naMeta }) : null]); nx.classList.add("next"); app.appendChild(nx);
+  }
+
+  app.appendChild(el("footer", { text: "Made with the tw-dan skill (Human in the Loop map) · Yan Gonzalez, True Webmaster · You can outsource intelligence, but not judgment." }));
+})();
+</script>
+</body>
+</html>
