@@ -53,7 +53,29 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 | Claude Code **and** the Codex CLI, both logged in, plus Python 3 | Best. On the thorough setting the finished map is checked by the *other* company's AI: Codex checks a map Claude made, and Claude checks a map Codex made. A checker from a different model family catches mistakes the first one is blind to. |
 
 1. **Install Python 3** from [python.org](https://www.python.org/downloads/). It builds and checks the report; without it the skill still works, but the checks don't run.
-2. **Install the other tool and log in once.** Each needs its own account. Claude Code: [code.claude.com/docs/en/setup](https://code.claude.com/docs/en/setup). Codex CLI: [developers.openai.com/codex/cli](https://developers.openai.com/codex/cli).
+2. **Install the other tool and log in once.** Each needs its own paid account (the free plans do not include the command line). Open a terminal and run the line for your system; then run `claude` or `codex` once and follow the login prompts.
+
+   Claude Code ([full guide](https://code.claude.com/docs/en/setup)):
+
+   ```bash
+   curl -fsSL https://claude.ai/install.sh | bash        # macOS
+   ```
+
+   ```powershell
+   irm https://claude.ai/install.ps1 | iex                # Windows PowerShell
+   ```
+
+   Codex CLI ([full guide](https://developers.openai.com/codex/cli)):
+
+   ```bash
+   curl -fsSL https://chatgpt.com/codex/install.sh | sh   # macOS
+   ```
+
+   ```powershell
+   npm install -g @openai/codex                           # Windows (needs Node.js from nodejs.org)
+   ```
+
+   Close and reopen the terminal afterwards so the new command is found.
 3. **Check that each answers from the terminal:**
 
    ```bash
