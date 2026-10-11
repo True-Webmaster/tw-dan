@@ -1,442 +1,163 @@
-# Data shape: worked example
+# Data shape: a specimen
 
-This example is about an unrelated business on purpose. It shows the format only: do not reuse its parts, causes or conclusions. Work out your own from the problem in front of you. Field meanings are in core.md and the mode file.
+Format only, about an unrelated business on purpose: do not reuse its parts, causes or conclusions. Field meanings are in core.md and the mode file. It is a quick, depth-2 diagnosis; the team-only and reply-only keys follow at the end.
 
 ```json
 {
   "title": "Why some of the bakery's weekend pre-orders are missing at pickup",
-  "problem": "Customers order online for Saturday pickup, but some orders are missing or not ready when they come in. I think the Saturday staff are losing them.",
-  "restated": "About one weekend pre-order in ten is not there when the customer comes to collect it, and the owner does not know where it goes missing.",
-  "theirTheory": "Are the Saturday staff losing the orders?",
-  "client": "Neighbourhood bakery, one shop",
-  "date": "2026-10-10",
+  "problem": "Customers pre-order for Saturday pickup and some orders aren't ready. It started about six weeks ago. The owner thinks the Saturday staff mix up the boxes.",
+  "restated": "Find which step between the online order and the Saturday counter loses some pre-orders, and what record shows it.",
+  "theirTheory": "Are Saturday staff handing baked orders to the wrong customers?",
+  "client": "The bakery (the owner is asking)",
+  "date": "2026-10-11",
   "builtBy": "solo",
   "summary": [
-    "Most likely, orders placed after Thursday don't reach the Friday baking list.",
-    "Compare last Saturday's online orders with the baking list before changing anything.",
-    "It depends on whether the website and the baking list are connected or copied by hand."
+    "Most likely the orders that go missing are placed after the baking list is printed, but the records have not been checked yet.",
+    "Match last Saturday's online orders to that week's baking list, noting each missing order's time.",
+    "It depends on whether the list is printed from the order system or copied by hand."
   ],
-  "confidence": {
-    "level": "low",
-    "why": "Built from the owner's description; no order records seen yet."
-  },
-  "facts": [
-    {
-      "fact": "Who: online pre-order customers collecting on Saturday",
-      "basis": "reported"
-    },
-    {
-      "fact": "What: an order is missing or not ready at pickup",
-      "basis": "reported"
-    },
-    {
-      "fact": "When it started: not stated",
-      "basis": "assumed"
-    },
-    {
-      "fact": "Where: one shop, the Saturday counter",
-      "basis": "reported"
-    },
-    {
-      "fact": "How much: about 40 pre-orders a week, about 1 in 10 missing or not ready (so about 4 a week); walk-in sales unaffected",
-      "basis": "reported"
-    },
-    {
-      "fact": "How long: the owner says 'a few weeks'",
-      "basis": "reported"
-    }
-  ],
+  "confidence": { "level": "low", "why": "built from two sentences and no records" },
   "restsOn": [
-    {
-      "fact": "The baking list is printed once, on Thursday night",
-      "basis": "reported"
-    },
-    {
-      "fact": "Missing orders are mostly placed on Friday",
-      "basis": "assumed"
-    }
+    { "fact": "The baking list is printed once, before the weekend", "basis": "assumed" },
+    { "fact": "Missing orders were placed through the online form", "basis": "reported" }
+  ],
+  "facts": [
+    { "fact": "Who: the bakery owner and the Saturday counter staff", "basis": "reported" },
+    { "fact": "What: some Saturday pre-orders are not ready at pickup", "basis": "reported" },
+    { "fact": "When: for about six weeks", "basis": "reported" },
+    { "fact": "How much: number of missing orders per Saturday not given", "basis": "reported" }
   ],
   "walkthrough": [
-    {
-      "round": 1,
-      "question": "What does a Friday-night order look like from the customer's side, minute by minute, after they press pay?",
-      "answer": "If the form works like most, they get a payment confirmation and a thank-you page; nothing tells them whether the shop has seen it (I am supplying that detail; the test order will show it). They would assume Saturday is fine because the site let them choose it.",
-      "vantage": "self"
-    },
-    {
-      "round": 1,
-      "question": "Who prints the baking list on Thursday night, from what, and what happens to an order that arrives at 9 pm Friday?",
-      "answer": "The owner says she prints it from the order dashboard at about 8 pm Thursday and bakes from paper; that is reported, not seen. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am.",
-      "vantage": "self"
-    },
-    {
-      "round": 1,
-      "question": "What does the Saturday counter person have in front of them when a customer says 'I ordered online'?",
-      "answer": "If the counter works from the printed list and a box of bagged orders with names on them (supplied; confirm on Saturday), a name that is not on the list sends them to the dashboard on the shop tablet, where they find the order and have nothing to hand over. If instead they work from the screen, a missing bag would be the clue, not a missing name.",
-      "vantage": "self"
-    },
-    {
-      "round": 1,
-      "question": "Which orders pass through this path but are not weekend pre-orders: test orders, cancelled orders, orders for Sunday?",
-      "answer": "If the form takes any date (supplied; the test order will show it), Sunday and weekday orders are mixed into the same dashboard; a Thursday print filtered by 'Saturday' could miss an order with a mistyped date, and a cancelled order might still be baked. If the form only offers Saturday, this whole line falls away.",
-      "vantage": "self"
-    },
-    {
-      "round": 1,
-      "question": "What does the order dashboard show that the printed list cannot, and the reverse?",
-      "answer": "The dashboard shows order time, payment status and any later edits; the paper shows only name, items and pickup day. A customer who edited an order Friday morning appears correct on screen and wrong on paper.",
-      "vantage": "self"
-    },
-    {
-      "round": 1,
-      "question": "If I stood in the bakery at 4 am Saturday for an hour, what would I notice about how the list is used?",
-      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped. Each of those would point at a different part.",
-      "vantage": "self"
-    },
-    {
-      "round": 2,
-      "question": "Does the form actually accept orders after the Thursday print, and what does it promise the customer when it does?",
-      "answer": "Unknown; the test order on Friday morning settles it. If it accepts and confirms, every late order is lost by design and the fix is a cut-off, not a person.",
-      "vantage": "self"
-    },
-    {
-      "round": 2,
-      "question": "How many of last Saturday's missing orders were placed after 8 pm Thursday?",
-      "answer": "Unknown until the order times are read against the print time; if most were, the cut-off explanation leads on its own, and if none were, copying or bagging leads.",
-      "vantage": "self"
-    }
+    { "round": 1, "vantage": "customer", "question": "What happens to an order placed at 9 pm on Friday, after the list is printed?", "answer": "If the list is printed on Thursday (supplied; the owner did not say), a Friday order sits in the order system and nobody sees it until the customer arrives on Saturday. A Saturday-morning print would catch it, and the cut-off explanation would fall away." },
+    { "round": 1, "vantage": "customer", "question": "How does a customer who finds nothing at the counter get recorded?", "answer": "Staff probably apologise and refund on the spot (supplied); unless someone writes the name down, the owner's count of missing orders comes from memory, not a record. If a refund log exists, the size of the problem is measurable and the counting explanation weakens." },
+    { "round": 1, "vantage": "records", "question": "Who turns the online orders into the baking list, and how?", "answer": "Either the system prints it or someone copies names by hand (both supplied). A hand copy can skip a line and keeps the copying explanation open; a printed list closes it and points at the cut-off or the counter." },
+    { "round": 1, "vantage": "records", "question": "Does the order form show a cut-off time to the customer?", "answer": "Most order forms accept orders until someone sets a cut-off (outside; verify: the form tool's help page), so a late Friday order is probably accepted with no warning. If this form refuses late orders, the cut-off explanation is out and the test order is unnecessary." },
+    { "round": 1, "vantage": "sceptic", "question": "What else changed about six weeks ago besides the order form?", "answer": "The owner named the form; a new Saturday hire or a busier season would also produce missing orders, and nothing in the request rules them out yet. If nothing else changed, the form and the list stay the only places to look." },
+    { "round": 1, "vantage": "sceptic", "question": "Could the orders be ready but handed to the wrong customer?", "answer": "If two customers share a surname (supplied), a box can go to the wrong one; that would show as an order marked collected while the right customer complains. If missing orders are absent from the list altogether, the counter is cleared." },
+    { "round": 2, "vantage": "records", "question": "What does the Thursday printing assume, and what if the list is printed Saturday morning?", "answer": "It assumes one print run. A Saturday print would catch Friday orders and would point at copying or pickup instead, so the print time is the first thing to ask." },
+    { "round": 2, "vantage": "sceptic", "question": "What would make the order-to-list comparison impossible to run?", "answer": "If last week's list was thrown away, the comparison needs a fresh Saturday. The test order on Friday night works either way and costs one small order, so it is the fallback." }
   ],
   "decompose": {
-    "depth": 3,
-    "gap": "About 1 in 10 weekend pre-orders (about 4 of 40 a week) is missing or not ready at pickup; the owner expects none.",
-    "isItReal": {
-      "verdict": "can't tell yet",
-      "why": "No count of missing orders by week has been kept; 4 of 40 could be one bad weekend. Compare the last 12 Saturdays."
-    },
-    "impact": "About 4 refunds a week plus the customers who don't come back; unknown in money terms.",
-    "detection": "Customers complain at the counter; nobody counts them.",
-    "problemType": {
-      "type": "diagnose from data",
-      "why": "Orders, the baking list and pickups are all recorded; the owner holds all three."
-    },
+    "takeaway": "The order has to pass through the form, the list and the counter; the list is where the counts most likely stop matching.",
+    "depth": 2,
+    "gap": "Some Saturday pre-orders (number not given) are not ready at pickup, for about six weeks, against the expectation that every pre-order is ready.",
+    "impact": "unknown; refunds plus customers who stop pre-ordering",
+    "detection": "Noticed from customer complaints at the counter; no tally is kept",
+    "isItReal": { "verdict": "can't tell yet", "why": "No count of missing orders per Saturday and no baseline from before six weeks ago" },
+    "problemType": { "type": "diagnose from data", "why": "The order system and the baking list already hold what is needed; the owner holds both" },
     "changes": [
-      {
-        "what": "New online order form",
-        "when": "about two months ago",
-        "who": "web designer"
-      },
-      {
-        "what": "Saturday staff changed",
-        "when": "unknown",
-        "who": "owner"
-      }
+      { "what": "New online order form", "when": "about six weeks ago", "who": "the owner" }
     ],
-    "takeaway": "The gap is probably between the order form and the baking list, not in the baking.",
+    "parts": [
+      { "id": "form", "name": "Order form", "question": "Does every order placed reach the order system?", "check": "Compare the payment account with the order list for one week; a paid order with no list entry means the form drops orders", "dependsOn": [] },
+      { "id": "list", "name": "Baking list", "question": "Does every order in the system reach the list?", "check": "Compare one week's orders with that week's list, noting each missing order's time", "dependsOn": ["form"],
+        "children": [
+          { "name": "Cut-off", "question": "When is the list printed, and are later orders caught?", "check": "Ask the owner the print time; place one test order after it on Friday" },
+          { "name": "Copying", "question": "Is the list printed from the system or copied by hand?", "check": "Watch the list being made once" }
+        ] },
+      { "id": "pickup", "name": "Saturday counter", "question": "Does every baked order reach the right customer?", "check": "Match Saturday's handovers to names on the list", "dependsOn": ["list"] },
+      { "id": "tally", "name": "Complaints tally", "question": "How are missing orders counted?", "check": "Start a sheet at the counter: name, order time, what happened", "dependsOn": ["pickup"] }
+    ],
     "isIsNot": {
-      "is": "Pre-orders missing at pickup",
-      "isNot": "Pre-orders ready at pickup",
+      "is": "Saturday pre-orders",
+      "isNot": "weekday pre-orders",
       "rows": [
-        {
-          "dimension": "When ordered",
-          "is": "Unknown: check order times",
-          "isNot": "Unknown: check order times",
-          "distinction": "If missing orders cluster late in the week, the cut-off is involved; if they are spread evenly, it is the copying or the handover."
-        },
-        {
-          "dimension": "What was ordered",
-          "is": "Unknown",
-          "isNot": "Unknown",
-          "distinction": "If special items dominate, they may need a separate list; if the mix matches, the item is not the cause."
-        }
+        { "dimension": "When ordered", "is": "unknown", "isNot": "unknown", "distinction": "If Saturday orders are placed later in the week than weekday ones, the cut-off explanation gains; if not, it loses" },
+        { "dimension": "How the list is made", "is": "unknown", "isNot": "unknown", "distinction": "A different method on Saturdays (hand copy) points at copying; the same method points away from it" },
+        { "dimension": "Who hands over", "is": "Saturday staff", "isNot": "the owner", "distinction": "If only Saturday staff hand over, the pickup explanation stays open; if the owner does too, it weakens" },
+        { "dimension": "How missing orders are counted", "is": "complaints from memory", "isNot": "not applicable", "distinction": "If no record exists, the size of the problem is unknown and the counting explanation stays open" }
       ]
     },
     "hypotheses": [
-      {
-        "name": "Late orders miss the baking list",
-        "predicts": "Every missing order has an order time after the list was printed",
-        "explains": "Missing orders",
-        "doesNotExplain": "Orders that are on the list but not ready",
-        "contradicts": "none yet",
-        "ruleOut": "Missing orders were placed before the list was made",
-        "cheapestCheck": "Compare order times with when the list was printed",
-        "likelihood": "leading",
-        "probability": 50
-      },
-      {
-        "name": "Orders are copied onto the list by hand and some are skipped",
-        "predicts": "Missing orders are spread across the week with no time pattern",
-        "explains": "Random missing orders",
-        "doesNotExplain": "A pattern by day or item",
-        "contradicts": "none yet",
-        "ruleOut": "The list is printed straight from the order system",
-        "cheapestCheck": "Watch the list being made once",
-        "likelihood": "possible",
-        "probability": 25
-      },
-      {
-        "name": "The new form drops orders before they reach anyone",
-        "predicts": "Paid orders exist in the payment account but not in the order list",
-        "explains": "Orders the owner never saw",
-        "doesNotExplain": "Orders that are on the list but not ready",
-        "contradicts": "none yet",
-        "ruleOut": "Every paid order appears in the order list",
-        "cheapestCheck": "Match the payment account to the order list for one week",
-        "likelihood": "possible",
-        "probability": 20,
-        "danger": true
-      },
-      {
-        "name": "The owner's theory: orders are baked but the Saturday staff hand them to the wrong customer",
-        "predicts": "Missing orders are on the list and were baked",
-        "explains": "Customers finding nothing at pickup",
-        "doesNotExplain": "Orders missing from the list",
-        "contradicts": "none yet",
-        "ruleOut": "Every missing order is also missing from the list",
-        "cheapestCheck": "Match Saturday's pickups to names",
-        "likelihood": "unlikely",
-        "probability": 5
-      }
+      { "name": "Late orders miss the baking list", "predicts": "Every missing order has an order time after the list was printed; the order system's timestamps show it", "explains": "Missing orders", "doesNotExplain": "Orders on the list but not ready", "contradicts": "none yet", "ruleOut": "Missing orders were placed before the list was printed", "cheapestCheck": "The owner compares last Saturday's orders with the list (needs last week's list; if it was thrown away, do it next Saturday); times after the print point here, times before point elsewhere", "probability": 35, "likelihood": "leading" },
+      { "name": "Orders are copied onto the list by hand and some are skipped", "predicts": "Missing orders are spread through the week with no time pattern", "explains": "Random missing orders", "doesNotExplain": "A pattern by day", "contradicts": "none yet", "ruleOut": "The list is printed straight from the order system", "cheapestCheck": "The owner watches the list being made once (no prerequisite); a hand copy keeps this open, a printout closes it", "probability": 20, "likelihood": "possible" },
+      { "name": "The counting changed, not the business", "predicts": "The complaints the owner remembers are the same few customers, or began when the form started asking for a pickup time", "explains": "A problem that appeared with the new form", "doesNotExplain": "Refunds actually paid", "contradicts": "none yet", "ruleOut": "The counter sheet shows missing orders on three consecutive Saturdays", "cheapestCheck": "The counter staff keep the tally sheet for three Saturdays (needs the sheet); three empty Saturdays close this, named orders keep it open", "probability": 20, "likelihood": "possible" },
+      { "name": "The new form drops paid orders before they reach anyone", "predicts": "Paid orders exist in the payment account but not in the order list", "explains": "Orders the owner never saw", "doesNotExplain": "Orders on the list but not ready", "contradicts": "none yet", "ruleOut": "Every paid order appears in the order list", "cheapestCheck": "The owner matches the payment account to the order list for one week (needs both logins); a paid order with no entry keeps this open, a full match closes it", "probability": 15, "likelihood": "possible", "danger": true },
+      { "name": "The owner's theory: baked orders are handed to the wrong customer", "predicts": "Missing orders are on the list and marked collected", "explains": "Customers finding nothing at pickup", "doesNotExplain": "Orders missing from the list", "contradicts": "none yet", "ruleOut": "Every missing order is also missing from the list", "cheapestCheck": "Saturday staff match handovers to names on the list (needs the list at the counter); a collected mark with a complaint keeps this open", "probability": 10, "likelihood": "unlikely" }
     ],
-    "contributingFactors": [
-      "An order form with no cut-off",
-      "A list made once, on Thursday night"
-    ],
-    "parts": [
-      {
-        "id": "form",
-        "name": "Order form",
-        "question": "What can customers order, and until when?",
-        "check": "Place a test order on Friday morning; write down whether it is accepted and what confirmation arrives",
-        "dependsOn": []
-      },
-      {
-        "id": "list",
-        "name": "Baking list",
-        "question": "How do orders become Friday's list?",
-        "check": "Ask who builds the list and how; get last week's printed list",
-        "dependsOn": [
-          "form"
-        ],
-        "children": [
-          {
-            "name": "Cut-off time",
-            "question": "Which orders make the list?",
-            "check": "Compare order times with the list's print time",
-            "children": [
-              {
-                "name": "Late orders",
-                "question": "What happens to orders after the cut-off?",
-                "check": "Find last week's orders placed after the print time"
-              }
-            ]
-          },
-          {
-            "name": "Copying",
-            "question": "Is the list typed up by hand?",
-            "check": "Watch it being made once"
-          }
-        ]
-      },
-      {
-        "id": "pickup",
-        "name": "Pickup",
-        "question": "How are orders matched to customers?",
-        "check": "Stand at the counter on Saturday; count orders not found",
-        "dependsOn": [
-          "list"
-        ]
-      }
-    ]
+    "contributingFactors": ["A printed list and a late order only lose the order together; either alone is harmless"]
   },
   "unknownUnknowns": [
-    {
-      "area": "The order form may not enforce the cut-off",
-      "whyItMatters": "If it still accepts orders after the list is printed, those orders are lost by design.",
-      "howToFind": "Place a test order on Friday morning and see if it is accepted."
-    },
-    {
-      "area": "Card payments can settle after the order is placed",
-      "whyItMatters": "An order that shows 'pending' on Thursday night may be skipped as unpaid and then settle on Friday.",
-      "howToFind": "Ask the payment provider how long settlement takes; look at one pending order's timestamps."
-    },
-    {
-      "area": "The dashboard's 'Saturday' filter depends on the date the customer typed",
-      "whyItMatters": "A customer who picks the wrong date is invisible to a filtered print.",
-      "howToFind": "Print the list unfiltered once and compare it with the filtered one."
-    }
+    { "area": "Card payments that settle after the order", "whyItMatters": "If the list only shows paid orders, a slow payment can hide a real order until Saturday", "howToFind": "Ask the form tool's support whether unpaid orders appear in the order list (verify: the tool's help page)" },
+    { "area": "The form's time zone", "whyItMatters": "A form set to another time zone can stamp a Friday order as Saturday and sort it off the list", "howToFind": "Place one test order and compare its stamped time with the clock" },
+    { "area": "Hand-written Saturday additions", "whyItMatters": "Orders taken by phone on Saturday morning may never enter the system or the count", "howToFind": "Ask the counter staff whether they take phone orders and where they write them" }
   ],
   "abstract": {
-    "takeaway": "For this question, only the path from an order to the baking list matters.",
-    "stepBack": {
-      "measure": "Orders taken online",
-      "goal": "Orders handed over ready, on time",
-      "gap": "The form counts an order as done when it is paid, before anyone has baked it."
-    },
+    "takeaway": "Watch the handoff into the list, not the form's design.",
+    "stepBack": { "measure": "Complaints at the counter", "goal": "Every pre-order ready for the right customer on Saturday", "gap": "Fewer complaints would also follow from customers giving up on pre-ordering" },
     "mattersNow": [
-      {
-        "item": "How orders reach the baking list",
-        "why": "Every missing order passes through this step.",
-        "lookAt": "Last Saturday's orders next to that week's printed list"
-      }
+      { "item": "When the list is printed", "why": "It decides whether a late order can ever be baked", "lookAt": "The owner's answer, then one Friday-night test order" },
+      { "item": "How the list is made", "why": "A hand copy and a printout fail in different ways", "lookAt": "One watched list-making" }
     ],
     "setAside": [
-      {
-        "item": "Redesigning the website",
-        "why": "Nothing yet shows the form is at fault; the handoff after it is the cheaper place to look first. The Friday test order brings this back if it fails."
-      }
+      { "item": "The form's design and wording", "why": "Nothing yet shows the form is at fault; it comes back if paid orders are missing from the list" }
     ]
   },
   "reuse": {
-    "takeaway": "The order-to-list check is worth saving; it applies every week.",
+    "takeaway": "The order-to-list comparison is a weekly check worth keeping.",
     "steps": [
-      {
-        "step": "Weekly order reconciliation",
-        "repeatsWhere": "Every weekend, same shop",
-        "makeSkill": true,
-        "why": "Same comparison every week."
-      }
+      { "step": "Compare orders with the list", "repeatsWhere": "Every Saturday for this bakery", "makeSkill": true, "why": "A five-minute check that catches the problem before the customer does" },
+      { "step": "Watch the list being made", "repeatsWhere": "Once", "makeSkill": false, "why": "One observation settles it" }
     ]
   },
   "parallelize": {
-    "takeaway": "Two checks can start today; the fix waits for both.",
+    "takeaway": "Two checks now, one decision, then one fix.",
     "streams": [
-      {
-        "id": "s1",
-        "name": "Compare orders with the list",
-        "brief": "Match last Saturday's online orders to the baking list; note the order time of each missing one.",
-        "waitsFor": [],
-        "who": "you",
-        "kind": "check",
-        "door": "reversible",
-        "returns": "Count of missing orders and their order times"
-      },
-      {
-        "id": "s2",
-        "name": "Test the cut-off",
-        "brief": "Place one late test order on Friday (about the cost of one loaf) and see whether it is accepted and where it appears.",
-        "waitsFor": [],
-        "who": "you",
-        "kind": "check",
-        "door": "reversible",
-        "returns": "Accepted yes/no, and the confirmation received"
-      },
-      {
-        "id": "s3",
-        "name": "Fix the handoff",
-        "brief": "Using s1's order times and s2's result, change how orders reach the list.",
-        "waitsFor": [
-          "s1",
-          "s2"
-        ],
-        "who": "you",
-        "kind": "fix",
-        "door": "one-way",
-        "returns": "Two clean Saturdays",
-        "failsIf": "The fix is a reminder to check the form, which gets forgotten; guard: print the list from the order system instead."
-      }
+      { "id": "s1", "name": "Compare orders with the list", "brief": "Last Saturday's online orders against that week's baking list; note each missing order's time", "who": "you", "kind": "check", "door": "reversible", "returns": "A list of missing orders with order times", "waitsFor": [] },
+      { "id": "s2", "name": "Test the cut-off", "brief": "Place one small order after the list is printed (cost: one order) and see whether it is ready on Saturday", "who": "you", "kind": "check", "door": "reversible", "returns": "Yes or no: a late order gets baked", "waitsFor": [] },
+      { "id": "s3", "name": "Decide which explanation the records support", "brief": "Put s1's times and s2's result side by side and pick the explanation they support", "who": "you", "kind": "decide", "door": "reversible", "returns": "The explanation to fix", "waitsFor": ["s1", "s2"] },
+      { "id": "s4", "name": "Fix the handoff", "brief": "Only the part s3 picked: a second print on Saturday morning, or a printed list instead of a hand copy, plus the cut-off shown to customers on the form (one-way: customers see it)", "who": "you", "kind": "fix", "door": "one-way", "returns": "Two clean Saturdays", "waitsFor": ["s3"], "failsIf": "Nobody remembers the second print on a busy Saturday; guard: set the system to print it automatically" }
     ]
   },
   "rubric": {
-    "takeaway": "Success is every paid order ready at pickup.",
+    "takeaway": "No agreed target yet; the counter sheet makes the first one measurable.",
     "criteria": [
-      {
-        "criterion": "Every paid order appears on the baking list",
-        "source": "Preference, no source (the order records give the count; nobody has agreed the target)",
-        "pass": "All orders matched",
-        "fail": "Any order missing",
-        "measure": "Weekly comparison",
-        "status": "unknown"
-      },
-      {
-        "criterion": "Orders ready within 5 minutes of the pickup time",
-        "source": "Preference, no source",
-        "pass": "All ready",
-        "fail": "Any late",
-        "measure": "Saturday counter log",
-        "status": "unknown"
-      },
-      {
-        "criterion": "A late order gets a reply within an hour saying whether it can be made",
-        "source": "Preference, no source",
-        "pass": "Every late order answered",
-        "fail": "Any late order left unanswered",
-        "measure": "Order dashboard timestamps against reply times",
-        "status": "unknown"
-      }
+      { "criterion": "Every pre-order is ready at pickup", "source": "Preference, no source", "pass": "Zero missing orders on the counter sheet for three Saturdays", "fail": "Any missing order", "measure": "The counter sheet", "status": "unknown" },
+      { "criterion": "Orders after the cut-off are refused or flagged", "source": "The form tool's help page (verify: the cut-off setting)", "pass": "A Friday-night test order is refused or flagged", "fail": "It is accepted silently", "measure": "One test order", "status": "unknown" },
+      { "criterion": "Every paid order appears in the order list", "source": "Preference, no source (measured from the owner's own records; nobody agreed the target)", "pass": "Full match for one week", "fail": "Any paid order with no list entry", "measure": "Weekly match", "status": "unknown" }
     ]
   },
   "evaluate": {
-    "takeaway": "Run the comparison again after the next two weekends.",
+    "takeaway": "The counter sheet is the one number that says whether the problem is gone.",
     "tests": [
-      {
-        "test": "Order-to-list comparison",
-        "how": "Match orders to the list",
-        "expect": "If the cut-off is the cause, no order placed before Thursday night is missing",
-        "when": "Every Monday, for the previous weekend, for three weekends before judging",
-        "signal": true
-      },
-      {
-        "test": "Friday test order",
-        "how": "Place one order on Friday morning",
-        "expect": "Accepted, and absent from the printed list",
-        "when": "Once, this week"
-      }
+      { "test": "Missing orders per Saturday", "how": "The counter sheet", "expect": "Zero for three Saturdays after the fix; a mixed result means the fix hit one cause of two", "when": "Every Saturday; readable after three", "signal": true },
+      { "test": "Late order gets baked", "how": "One Friday-night test order", "expect": "Ready on Saturday after the fix", "when": "The Saturday after the fix" }
     ],
     "itDepends": [
-      {
-        "condition": "The list is copied by hand",
-        "ifTrue": "Print it straight from the order system.",
-        "ifFalse": "Look at the cut-off time next."
-      }
+      { "condition": "The list is printed from the order system", "ifTrue": "Add a second print on Saturday morning", "ifFalse": "Print it from the system instead of copying" }
     ]
   },
   "assumptions": [
-    {
-      "assumption": "The owner, not an agency, is asking; 'you' in the streams is the owner",
-      "ifWrong": "Streams owned by 'you' move to 'client'."
-    },
-    {
-      "assumption": "Orders are paid online at the time of ordering",
-      "ifWrong": "Unpaid orders may be dropped on purpose; add that as an explanation."
-    }
+    { "assumption": "The owner, not an agency, is asking; 'you' in the streams is the owner", "ifWrong": "Stream owners change to client and client's staff" },
+    { "assumption": "The baking list is printed once, before the weekend", "ifWrong": "The cut-off explanation falls away and copying or pickup lead" },
+    { "assumption": "Region not stated; no region-dependent rule was used", "ifWrong": "Nothing in the map moves" }
   ],
   "openQuestions": [
-    {
-      "question": "Which day and time is the baking list printed?",
-      "whoCanAnswer": "The owner",
-      "ourGuess": "The owner, Thursday night, printed from the dashboard",
-      "changesWhat": "Whether the cut-off explanation stays in the lead"
-    },
-    {
-      "question": "Does the order form accept a Saturday order on Friday?",
-      "whoCanAnswer": "The owner",
-      "ourGuess": "Yes, with no warning",
-      "changesWhat": "Whether the fix is a cut-off or a person"
-    },
-    {
-      "question": "Were the missing orders paid?",
-      "whoCanAnswer": "The owner's payment provider",
-      "ourGuess": "Paid, settled within minutes",
-      "changesWhat": "Whether 'unpaid' is a reason an order was skipped"
-    }
+    { "question": "Which day and time is the baking list printed?", "whoCanAnswer": "you", "ourGuess": "Thursday night", "changesWhat": "Whether the cut-off explanation stays in the lead" },
+    { "question": "Is the list printed from the system or copied by hand?", "whoCanAnswer": "you", "ourGuess": "Printed", "changesWhat": "Whether the copying explanation stays open" },
+    { "question": "Do Saturday staff take phone orders?", "whoCanAnswer": "the Saturday staff", "ourGuess": "Yes, a few", "changesWhat": "Whether a part is missing from the path" }
   ],
+  "nextAction": { "action": "Match last Saturday's online orders to that week's baking list, noting each missing order's time; meanwhile ask the staff to start the counter sheet", "owner": "you", "by": "Today", "rulesOut": "Order times after the print rule out copying and pickup for those orders; times before rule out the cut-off" },
   "factChecks": [
-    {
-      "fact": "Online order forms usually have no cut-off unless one is set",
-      "result": "unchecked",
-      "note": "Depends on the form tool; the Friday test order settles it."
-    }
+    { "fact": "Most order forms accept orders until a cut-off is set", "result": "unchecked", "note": "Depends on the form tool; the Friday test order settles it" },
+    { "fact": "Unpaid orders may not appear in the order list", "result": "unchecked", "note": "Depends on the form tool; its help page or support settles it" }
   ],
   "coverageTest": {
-    "fitsNoPart": "The customer ordered from the wrong shop's website; fixed by adding 'which shop the order is for' to the order form's check, so a stray order is caught before the list.",
-    "fitsTwoParts": "An order that is on the list but baked for the wrong day fitted both the list and pickup; fixed by giving the list part the day the order is printed under, and pickup only what is in the box on Saturday.",
+    "fitsNoPart": "An order taken by phone on Saturday morning fitted no part; fixed by adding phone orders to the baking list part's check",
+    "fitsTwoParts": "An order on the list but baked for the wrong day fitted both the list and the counter; fixed by giving the list the day printed and the counter only what is in the box",
     "fixed": true
-  },
-  "nextAction": {
-    "action": "Match last Saturday's online orders to that week's baking list, noting each missing order's time.",
-    "owner": "you",
-    "by": "Today",
-    "rulesOut": "Separates the cut-off explanation from copying and pickup in one pass."
   }
+}
+```
+
+Team-only keys (team.md) and reply-only keys (reply.md), shown on their own:
+
+```json
+{
+  "builtBy": "team",
+  "judgedBy": "Codex, default model",
+  "review": [ { "finding": "Two explanations share the same rule-out", "field": "decompose.hypotheses", "fixed": true, "note": "Merged into one" } ],
+  "revisions": [ { "date": "2026-10-18", "changed": "The list history ruled out copying; late orders lead" } ],
+  "decompose": { "hypotheses": [ { "name": "...", "status": "ruled out", "evidence": "The list is printed from the system (owner's screenshot)", "probability": 0, "likelihood": "unlikely" } ] }
 }
 ```
