@@ -54,9 +54,16 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 ## How to use it
 
 1. **Describe the problem as you'd say it to a colleague.** One or two sentences is enough. If you have records, attach or paste them; the map goes a level deeper when it has data.
-2. **Say depth 2 or depth 3** if you want a finer breakdown. A first run with no records stays at one level so it reads in five minutes.
+2. **Put a mode word first if you want one.** There is one command; these words at the start of the request set how it runs, and everything else is read from the problem:
+   - `quick`: one mind, no helpers, about ten minutes (the default uses three helpers and a judge, about thirty).
+   - `ask`: the skill asks you up to three questions before building, the ones whose answers would most change the map, each with its own guess so a "yes" or "go" is enough. Without this word it assumes, labels every assumption, and asks nothing.
+   - `build`, `choose` or `diagnose`: the kind of task, only when your wording could be read two ways.
+   - `depth 2` or `depth 3`: a finer breakdown. A first run with no records stays at one level so it reads in five minutes.
+   - `update`: continue an earlier map in a new session. It opens the newest `tw-dan-*.json` in your folder (or the one you name) and applies what you send.
+
+   Example: `/tw-dan quick depth 2 Our bakery's weekend pre-orders keep going missing at pickup.`
 3. **Read the summary, then the next action.** The chat reply has the file name, three summary lines, the next action, and one question with the skill's own guess. Correct the guess or send the records.
-4. **Reply with what you found.** The skill updates the same file and says in one line what changed.
+4. **Reply with what you found.** The skill updates the same file and says in one line what changed. In a later session, start the request with `update`.
 
 A run takes about ten minutes alone, about thirty with helpers. The skill writes two files in your current folder: `tw-dan-<problem>-<date>.json` (the data; keep it, it's what gets updated) and `tw-dan-<problem>-<date>.html` (the report).
 

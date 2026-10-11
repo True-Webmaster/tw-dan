@@ -61,6 +61,29 @@
       "assertions": [
         "No tw-dan JSON or HTML file is created"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "/tw-dan update The director sent the waiting-list history: thirty-one names were removed on the same day, 2 March, with the note 'no reply to fee letter'.",
+      "expected_output": "If a tw-dan JSON exists in the current folder, the skill reads it first, adds the record to facts with basis 'reported', marks the explanations it rules in or out, adds a revisions entry dated today, rebuilds with fill.py, and says in one line what moved. If none exists, it says so and builds a fresh map.",
+      "files": [],
+      "assertions": [
+        "The skill looks for tw-dan-*.json in the current folder before writing anything",
+        "With no map in the folder, the chat reply says no earlier map was found and a fresh map is built",
+        "With a map in the folder, the same file names are kept and revisions carries today's date"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/tw-dan ask Our gym's membership cancellations doubled in September. The manager thinks it's the new app.",
+      "expected_output": "Before any file is written, one chat message with at most three questions, each written from this problem (naming the app, the cancellations, a record or a date), each with the skill's own guess in brackets, and a line saying the person can answer any of them or say 'go'. The map is built only after the reply, with answers as facts (basis reported) and unanswered questions as labelled assumptions.",
+      "files": [],
+      "assertions": [
+        "No tw-dan JSON or HTML file exists before the person replies",
+        "The questions message has at most three questions, each naming something from the request",
+        "Every question carries a guess, and the message says 'go' is an acceptable answer",
+        "After the reply, each answered question appears in facts with basis 'reported' or 'measured'"
+      ]
     }
   ]
 }
