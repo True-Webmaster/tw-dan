@@ -255,8 +255,9 @@ __REPORT_DATA__
   var wt = arr(data.walkthrough);
   if (wt.length) {
     var r1 = wt.filter(function (w) { return w.round !== 2; }), r2 = wt.filter(function (w) { return w.round === 2; });
-    function qa(list) { return el("div", { cls: "grid g2" }, list.map(function (w) { return el("div", { cls: "card" }, [el("h3", { text: w.question || "" }), el("p", { cls: "why", text: w.answer || "" })]); })); }
-    app.appendChild(section("Thinking it through", "Questions asked and answered before judging", "Written from this problem, answered as if standing there. The explanations below come from these answers.", [
+    var vantageLabel = { customer: "the customer's path", records: "the record-keeper", sceptic: "the sceptic", self: "" };
+    function qa(list) { return el("div", { cls: "grid g2" }, list.map(function (w) { var v = String(w.vantage || "").toLowerCase(); return el("div", { cls: "card" }, [el("h3", {}, [w.question || "", v && vantageLabel[v] ? badge("no", vantageLabel[v]) : null]), el("p", { cls: "why", text: w.answer || "" })]); })); }
+    app.appendChild(section("Thinking it through", "Questions asked and answered before judging", (String(data.builtBy || "").toLowerCase() === "team" ? "Three fresh helpers asked these from three vantages, then the answers were merged. " : "Written from this problem, answered as if standing there. ") + "The explanations below come from these answers.", [
       qa(r1),
       r2.length ? el("h3", { text: "What those answers raised", style: "margin-top:18px" }) : null,
       r2.length ? qa(r2) : null
@@ -383,10 +384,12 @@ __REPORT_DATA__
   app.appendChild(section("6 · Evaluate and improve", "Test, correct, retest", ev.takeaway, [tests, hasExpect ? el("p", { cls: "legend", text: "\"The signal\" is the one check that stays red while the problem exists and goes green when it is gone." }) : null, depends], ev.skipped));
 
   // How the map was checked: the agent's fact checks and the coverage test.
-  var fcs = arr(data.factChecks), cov = data.coverageTest;
-  if (fcs.length || cov) {
+  var fcs = arr(data.factChecks), cov = data.coverageTest, rev = arr(data.review), team = String(data.builtBy || "").toLowerCase() === "team";
+  if (fcs.length || cov || rev.length || data.builtBy) {
     var fcKind = { held: "pass", corrected: "strong", unchecked: "unknown" };
-    app.appendChild(section("Checked", "How this map was checked", "Facts the map brought from outside, and the test that every failure fits exactly one part.", [
+    app.appendChild(section("Checked", "How this map was checked", team ? "Built by three helpers and a judge; one mind did the merging. Below: what the judge found and what was done about it, the outside facts, and the test that every failure fits exactly one part." : "Built by one agent, checked against itself. Below: the outside facts and the test that every failure fits exactly one part.", [
+      rev.length ? el("ul", { cls: "facts" }, rev.map(function (r) { return el("li", {}, [badge(r.fixed ? "pass" : "unknown", r.fixed ? "fixed" : "kept"), " ", r.finding || "", r.field ? el("span", { cls: "why", text: " · " + r.field }) : null, r.note ? el("span", { cls: "why", text: " · " + r.note }) : null]); })) : null,
+      rev.length ? el("h3", { text: "Outside facts", style: "margin-top:14px" }) : null,
       fcs.length ? el("ul", { cls: "facts" }, fcs.map(function (c) { var r = String(c.result || "unchecked").toLowerCase(); return el("li", {}, [badge(fcKind[r] || "unknown", r), " ", c.fact || "", c.note ? el("span", { cls: "why", text: " · " + c.note }) : null]); })) : el("p", { cls: "why", text: "No outside facts were brought in." }),
       cov ? el("div", { cls: "card", style: "margin-top:12px" }, [el("p", { cls: "if" }, [el("b", { text: "A failure that fitted no part: " }), cov.fitsNoPart || ""]), el("p", { cls: "if" }, [el("b", { text: "A failure that fitted two: " }), cov.fitsTwoParts || ""])]) : null
     ]));

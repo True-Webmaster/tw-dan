@@ -10,6 +10,7 @@ This example is about an unrelated business on purpose. It shows the format only
   "theirTheory": "Are the Saturday staff losing the orders?",
   "client": "Neighbourhood bakery, one shop",
   "date": "2026-10-10",
+  "builtBy": "solo",
   "summary": [
     "Most likely, orders placed after Thursday don't reach the Friday baking list.",
     "Compare last Saturday's online orders with the baking list before changing anything.",
@@ -59,42 +60,50 @@ This example is about an unrelated business on purpose. It shows the format only
     {
       "round": 1,
       "question": "What does a Friday-night order look like from the customer's side, minute by minute, after they press pay?",
-      "answer": "If the form works like most, they get a payment confirmation and a thank-you page; nothing tells them whether the shop has seen it (I am supplying that detail; the test order will show it). They would assume Saturday is fine because the site let them choose it."
+      "answer": "If the form works like most, they get a payment confirmation and a thank-you page; nothing tells them whether the shop has seen it (I am supplying that detail; the test order will show it). They would assume Saturday is fine because the site let them choose it.",
+      "vantage": "self"
     },
     {
       "round": 1,
       "question": "Who prints the baking list on Thursday night, from what, and what happens to an order that arrives at 9 pm Friday?",
-      "answer": "The owner says she prints it from the order dashboard at about 8 pm Thursday and bakes from paper; that is reported, not seen. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am."
+      "answer": "The owner says she prints it from the order dashboard at about 8 pm Thursday and bakes from paper; that is reported, not seen. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am.",
+      "vantage": "self"
     },
     {
       "round": 1,
       "question": "What does the Saturday counter person have in front of them when a customer says 'I ordered online'?",
-      "answer": "If the counter works from the printed list and a box of bagged orders with names on them (supplied; confirm on Saturday), a name that is not on the list sends them to the dashboard on the shop tablet, where they find the order and have nothing to hand over. If instead they work from the screen, a missing bag would be the clue, not a missing name."
+      "answer": "If the counter works from the printed list and a box of bagged orders with names on them (supplied; confirm on Saturday), a name that is not on the list sends them to the dashboard on the shop tablet, where they find the order and have nothing to hand over. If instead they work from the screen, a missing bag would be the clue, not a missing name.",
+      "vantage": "self"
     },
     {
       "round": 1,
       "question": "Which orders pass through this path but are not weekend pre-orders: test orders, cancelled orders, orders for Sunday?",
-      "answer": "If the form takes any date (supplied; the test order will show it), Sunday and weekday orders are mixed into the same dashboard; a Thursday print filtered by 'Saturday' could miss an order with a mistyped date, and a cancelled order might still be baked. If the form only offers Saturday, this whole line falls away."
+      "answer": "If the form takes any date (supplied; the test order will show it), Sunday and weekday orders are mixed into the same dashboard; a Thursday print filtered by 'Saturday' could miss an order with a mistyped date, and a cancelled order might still be baked. If the form only offers Saturday, this whole line falls away.",
+      "vantage": "self"
     },
     {
       "round": 1,
       "question": "What does the order dashboard show that the printed list cannot, and the reverse?",
-      "answer": "The dashboard shows order time, payment status and any later edits; the paper shows only name, items and pickup day. A customer who edited an order Friday morning appears correct on screen and wrong on paper."
+      "answer": "The dashboard shows order time, payment status and any later edits; the paper shows only name, items and pickup day. A customer who edited an order Friday morning appears correct on screen and wrong on paper.",
+      "vantage": "self"
     },
     {
       "round": 1,
       "question": "If I stood in the bakery at 4 am Saturday for an hour, what would I notice about how the list is used?",
-      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped. Each of those would point at a different part."
+      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped. Each of those would point at a different part.",
+      "vantage": "self"
     },
     {
       "round": 2,
       "question": "Does the form actually accept orders after the Thursday print, and what does it promise the customer when it does?",
-      "answer": "Unknown; the test order on Friday morning settles it. If it accepts and confirms, every late order is lost by design and the fix is a cut-off, not a person."
+      "answer": "Unknown; the test order on Friday morning settles it. If it accepts and confirms, every late order is lost by design and the fix is a cut-off, not a person.",
+      "vantage": "self"
     },
     {
       "round": 2,
       "question": "How many of last Saturday's missing orders were placed after 8 pm Thursday?",
-      "answer": "Unknown until the order times are read against the print time; if most were, the cut-off explanation leads on its own, and if none were, copying or bagging leads."
+      "answer": "Unknown until the order times are read against the print time; if most were, the cut-off explanation leads on its own, and if none were, copying or bagging leads.",
+      "vantage": "self"
     }
   ],
   "decompose": {

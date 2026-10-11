@@ -18,6 +18,8 @@ One HTML file that works offline, with:
 - **A pass/fail rubric** that only cites sources that exist. A target nobody has agreed is labelled "Preference, no source".
 - **What the answer depends on**, and the one thing to do today.
 
+**How it thinks.** When your tool can run helper agents (Claude Code and the Codex CLI both can), the skill does not think alone: three fresh helpers each take the problem from a different vantage (the customer's path, the person who writes the number down, a sceptic who assumes nothing is wrong), the main agent merges what they found, and a separate judge reads the finished map against six fixed questions before you see it. The report shows the judge's findings and what was done about them. That is the one approach with strong evidence for deeper reasoning from these models; it takes about thirty minutes. Without helpers, the skill asks and answers its own questions in writing, in about ten.
+
 The first run never names a single cause when the facts are thin. It says "the evidence cannot yet separate A, B and C", tells you which record splits them, and asks the one question that would most change the answer. When you send the records, it updates the map, marks explanations ruled out, and tells you in one line what moved.
 
 ## Install
@@ -55,7 +57,7 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 3. **Read the summary, then the next action.** The chat reply has the file name, three summary lines, the next action, and one question with the skill's own guess. Correct the guess or send the records.
 4. **Reply with what you found.** The skill updates the same file and says in one line what changed.
 
-A run takes about ten minutes. The skill writes two files in your current folder: `tw-dan-<problem>-<date>.json` (the data; keep it, it's what gets updated) and `tw-dan-<problem>-<date>.html` (the report).
+A run takes about ten minutes alone, about thirty with helpers. The skill writes two files in your current folder: `tw-dan-<problem>-<date>.json` (the data; keep it, it's what gets updated) and `tw-dan-<problem>-<date>.html` (the report).
 
 ## What it won't do
 
@@ -77,6 +79,7 @@ tw-dan/
 ├── SKILL.md                   # the instructions the agent follows
 ├── references/method.md       # the six-skill method and the rules
 ├── references/data-shape.md   # a worked example of the data (about a bakery, on purpose)
+├── references/team.md         # the three helpers and the judge
 ├── assets/report-template.html# draws the report from the data, offline
 ├── scripts/fill.py            # validates the data and builds the report
 └── evals/evals.json           # test cases

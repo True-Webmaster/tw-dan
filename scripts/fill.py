@@ -231,6 +231,17 @@ def main():
     na = data.get("nextAction")
     if not na or (isinstance(na, dict) and not na.get("action")):
         problems.append("Missing 'nextAction'.")
+    built = norm(data.get("builtBy"))
+    if built not in ("team", "solo"):
+        problems.append("Missing 'builtBy': \"team\" (three helpers and a judge) or \"solo\".")
+    rv = data.get("review")
+    if built == "team" and not isinstance(rv, list):
+        problems.append("A team map needs 'review': an empty list before the judge has run, then the judge's findings, each with 'finding', 'field', 'fixed' and 'note'.")
+    if isinstance(rv, list):
+        for r in rv:
+            if not r.get("finding") or r.get("fixed") not in (True, False):
+                problems.append("Every review entry needs a 'finding' and 'fixed': true or false.")
+                break
     wt = data.get("walkthrough")
     if not isinstance(wt, list):
         problems.append("Missing 'walkthrough': the questions you wrote about this problem and your answers (at least six in round 1, two in round 2).")
@@ -286,7 +297,13 @@ def main():
             print(f"  [{name}] skipped: {sec['skipped']}")
         elif sec.get("takeaway"):
             print(f"  [{name}] {sec['takeaway']}")
-    print(f"Walkthrough: {len([w for w in wt if w.get('round') == 1])} questions in round 1, {len([w for w in wt if w.get('round') == 2])} in round 2.")
+    print(f"Built by: {built}. Walkthrough: {len([w for w in wt if w.get('round') == 1])} questions in round 1, {len([w for w in wt if w.get('round') == 2])} in round 2.")
+    if built == "team" and not rv:
+        print("Judge: NOT RUN YET. Run the judge from team.md, record its findings under 'review', and build again.")
+    if isinstance(rv, list) and rv:
+        print(f"Judge: {len(rv)} findings, {sum(1 for r in rv if r.get('fixed'))} fixed.")
+        for r in rv:
+            print(f"  [{'fixed' if r.get('fixed') else 'kept'}] {r.get('finding')}" + (f" ({r.get('note')})" if r.get("note") else ""))
     print("Fact checks:" + ("" if fc else " none brought from own knowledge"))
     for c in fc:
         print(f"  [{c.get('result')}] {c.get('fact')}" + (f" ({c.get('note')})" if c.get("note") else ""))

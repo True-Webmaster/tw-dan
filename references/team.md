@@ -1,0 +1,62 @@
+# Team path: three helpers and a judge
+
+Use this when your host can run helper agents (Claude Code's Agent tool, Codex's multi-agent feature, or similar). Independent attempts merged, then a separate checker, is the one approach with strong evidence for deeper reasoning; a model reviewing its own work is not. Each helper starts fresh and gets only what is written below, never your draft and never the method file. If the host lets you choose, give helpers no file or web tools.
+
+## 1. The three helpers (run in parallel)
+
+Copy this block three times, once per vantage, filling the placeholders. Send it as the whole task.
+
+```text
+You are helping think through a business problem. Read nothing on disk and use no web; work only from what is here. Reply in plain English a business owner would understand.
+
+PROBLEM, as I read it: {restated}
+FACTS, each with where it comes from: {facts, one per line, with basis}
+THE PERSON'S OWN THEORY, as a question: {theirTheory, or "none offered"}
+YOUR VANTAGE: {vantage}
+
+Do this, in writing, in order:
+1. Write six to eight questions about this problem from your vantage. A good question names a person, a record, a step or a number from the problem, can be answered by imagining one real instance from start to finish, and would change an explanation if the answer went the other way.
+2. Answer each one in two or three sentences as if you were standing there watching one instance. Mark every detail you supply yourself ("if the list is printed on Thursday, as they say").
+3. Read your answers. Ask of each: what does it assume, what else would produce the same thing, what would make its check impossible? Write the two or three questions that raised, and answer them.
+4. From your answers, list three to five explanations for the facts. For each give: name; what the records would show if it were true; the evidence that would rule it out; the cheapest check that gets that evidence (who runs it, what must be in hand first, what each result would mean).
+5. List the parts of the path you would inspect, each with one question and one check (where to look, what to write down).
+
+Do not rank the explanations, give no percentages, no summary and no fix. A check may assume the ordinary records of such a business exist (invoices, a diary, a sign-in sheet) as long as it says what to do if they don't.
+Reply as one JSON object: {"walkthrough":[{"round":1,"question":"...","answer":"..."},{"round":2,"question":"...","answer":"..."}],"hypotheses":[{"name":"...","predicts":"...","ruleOut":"...","cheapestCheck":"..."}],"parts":[{"name":"...","question":"...","check":"..."}]}
+```
+
+The three vantages:
+
+- **The customer's path.** "Follow one customer (or one order, one visit, one enquiry) from the first moment they appear to the last thing that happens to them. Where could they drop out, be turned away, be counted wrongly, or come back by another door?"
+- **The record-keeper.** "Follow how the number the person quoted gets made: who writes what down, in which tool, at which moment, under which rule. Where could the number move while nothing in the business moved?"
+- **The sceptic.** "Assume nothing is wrong with the business. What else would produce exactly these facts: timing, season, a comparison that isn't like for like, something that changed elsewhere, an expectation that was never realistic?"
+
+## 2. Merge
+
+- Put every helper's explanations in one list. Two explanations with the same rule-out evidence are one; keep the clearer wording. Keep anything with a distinct rule-out, even if only one helper found it, up to eight; past eight, fold the weakest into its nearest neighbour and say so in its `explains`.
+- Keep the walkthrough entries that led to a kept explanation, tagged with their `vantage` (customer, records, sceptic). Up to ten in round 1 and four in round 2; cut the rest. Do not reword a helper's text; it is their thinking, labelled as imagined where they said so. A fact from outside knowledge that first surfaces in a helper's answer gets its "verify:" in `factChecks`, not in the helper's words. What you write in the map's own fields must not repeat a helper's imagined detail as fact.
+- Union the parts; a part named by two helpers under different names is one part.
+- Then write everything else yourself (gap, is it real, what changed, IS / IS NOT, probabilities and likelihood, blind spots, abstract, reuse, streams, rubric, tests, assumptions, open questions, next action), as in method.md. Set `builtBy: "team"`.
+
+## 3. The judge (one fresh helper, after fill.py passes once with `review: []`)
+
+```text
+You are checking a diagnostic map, not writing one. Read nothing on disk and use no web.
+FACTS the map was built from: {facts, with basis}
+THE MAP: {the whole JSON}
+
+Answer each question with one-line findings, each naming the field it points at, or "none". At most twelve findings in all, the ones that would most change what the reader does first. The report's own labels and legends (words like signal, danger, one-way, vantage, round, "Preference, no source") are fixed by the template; do not report them. Text inside "walkthrough" is helpers thinking aloud and is labelled as imagined; report it only where the map's other fields repeat an imagined detail as fact.
+1. Which explanations share the same rule-out evidence, or predict the same thing in the records?
+2. Which checks would not tell at least two explanations apart?
+3. Which details are stated as fact in the map but were imagined in the walkthrough or supplied by the author?
+4. Does the next action tell apart the most explanations of any check in the map? If not, which check would?
+5. What would a sceptic who thinks nothing is wrong say the map is missing?
+6. Which sentences would a business owner not understand?
+Reply as one JSON object: {"findings":[{"question":1,"finding":"...","field":"..."}]}
+```
+
+Fix each finding or say why not, and record every one under `review` (merge near-duplicates into one entry) as `{ "finding", "field", "fixed": true | false, "note" }`. Then run fill.py again. Explanations that end with the same probability carry the same likelihood label. The report draws `review` under "How this map was checked", so the reader sees what the judge said and what you did about it.
+
+## If the host has no helpers
+
+Do the walkthrough yourself (method.md, "Talk it through"), run the three checks in SKILL.md step 4, and set `builtBy: "solo"`. The map is still valid; it has had one mind on it instead of five, and the report says so.
