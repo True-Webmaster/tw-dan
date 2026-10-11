@@ -1,7 +1,7 @@
 """Fill the Human in the Loop map template with report data and check it.
 
-Usage:  python <skill-folder>/scripts/fill.py data.json output.html
-Run it from the folder where the report should land. Prints problems and
+Usage:  python <skill-folder>/scripts/fill.py <path to data.json> <path to output.html>
+Full paths work from any folder. Prints problems and
 exits 1 if the data is not usable; prints the summary and takeaways in
 order, then the output path, when the report is written.
 """
@@ -61,8 +61,14 @@ def main():
     try:
         with open(src, encoding="utf-8") as f:
             data = json.load(f)
+    except OSError as e:
+        print(f"Cannot read {src}: {e}")
+        return 1
     except ValueError as e:
         print(f"The JSON is not valid: {e}")
+        return 1
+    if not isinstance(data, dict):
+        print("The JSON must be one object, not a list.")
         return 1
 
     problems = []
@@ -87,9 +93,13 @@ def main():
     if not parts:
         problems.append("Missing 'decompose.parts'.")
     part_ids = {p.get("id") for p in parts}
+    if len(part_ids) != len(parts):
+        problems.append("Part ids must be unique.")
     for p in parts:
         if not p.get("id"):
             problems.append(f"Part '{p.get('name')}' has no id.")
+        if not p.get("name"):
+            problems.append(f"Part '{p.get('id')}' has no name.")
         if not p.get("check"):
             problems.append(f"Part '{p.get('name')}' has no 'check'.")
         for d in p.get("dependsOn") or []:
@@ -115,11 +125,12 @@ def main():
     for p in parts:
         check_children(p.get("children"), 2, p.get("name"))
     depth = dec.get("depth")
-    if depth is not None:
-        if depth not in (1, 2, 3):
-            problems.append("'decompose.depth' must be 1, 2 or 3.")
-        elif deepest[0] != depth:
-            problems.append(f"'decompose.depth' says {depth} but the breakdown goes {deepest[0]} level(s) deep. Match them.")
+    if depth is None:
+        problems.append("Missing 'decompose.depth' (1, 2 or 3).")
+    elif depth not in (1, 2, 3):
+        problems.append("'decompose.depth' must be 1, 2 or 3.")
+    elif deepest[0] != depth:
+        problems.append(f"'decompose.depth' says {depth} but the breakdown goes {deepest[0]} level(s) deep. Match them.")
 
     real = dec.get("isItReal")
     if isinstance(real, dict) and real.get("verdict") and norm(real["verdict"]) not in ("outside normal", "inside normal", "can't tell yet", "cant tell yet"):
@@ -135,9 +146,9 @@ def main():
             problems.append(f"Explanation '{h.get('name')}' needs 'ruleOut' and 'cheapestCheck'.")
         if not h.get("predicts"):
             problems.append(f"Explanation '{h.get('name')}' needs 'predicts': what the records show if it is true.")
-        if h.get("likelihood") not in LIKELIHOODS:
+        if norm(h.get("likelihood")) not in LIKELIHOODS:
             problems.append(f"Explanation '{h.get('name')}' needs 'likelihood' of leading, possible or unlikely.")
-        if h.get("status") is not None and h.get("status") not in HYP_STATUSES:
+        if h.get("status") is not None and norm(h.get("status")) not in HYP_STATUSES:
             problems.append(f"Explanation '{h.get('name')}' has 'status' outside open, ruled out, confirmed.")
         key = norm(h.get("ruleOut"))
         if key:
@@ -146,7 +157,10 @@ def main():
             seen_rule_outs[key] = h.get("name")
         if h.get("probability") is not None:
             try:
-                probs.append(float(h["probability"]))
+                pr = float(h["probability"])
+                probs.append(pr)
+                if not 0 <= pr <= 100:
+                    problems.append(f"Explanation '{h.get('name')}' has a 'probability' outside 0 to 100.")
             except (TypeError, ValueError):
                 problems.append(f"Explanation '{h.get('name')}' has a 'probability' that is not a number.")
     if probs and len(probs) == len(hyps) and not 95 <= sum(probs) <= 105:
@@ -155,8 +169,8 @@ def main():
         problems.append("Either every explanation has a 'probability' or none does.")
 
     for u in data.get("unknownUnknowns") or []:
-        if not u.get("area") or not u.get("howToFind"):
-            problems.append("Every unknown unknown needs an 'area' and a 'howToFind'.")
+        if not u.get("area") or not u.get("howToFind") or not u.get("whyItMatters"):
+            problems.append("Every unknown unknown needs an 'area', a 'whyItMatters' and a 'howToFind'.")
 
     ab = data.get("abstract") or {}
     for m in ab.get("mattersNow") or []:
@@ -166,9 +180,15 @@ def main():
     pa = data.get("parallelize") or {}
     streams = pa.get("streams") or []
     stream_ids = {s.get("id") for s in streams}
+    if len(stream_ids) != len(streams):
+        problems.append("Stream ids must be unique.")
     for s in streams:
+        if not s.get("id") or not s.get("name"):
+            problems.append("Every stream needs an 'id' and a 'name'.")
         if not s.get("brief"):
             problems.append(f"Stream '{s.get('id')}' has no 'brief'.")
+        if not s.get("kind"):
+            problems.append(f"Stream '{s.get('name')}' needs 'kind': check, fix, decide or ask.")
         if norm(s.get("who")).replace("’", "'") not in WHO:
             problems.append(f"Stream '{s.get('name')}' needs 'who': AI, you, client, client's staff or vendor.")
         if s.get("kind") is not None and norm(s.get("kind")) not in KINDS:
@@ -188,16 +208,19 @@ def main():
     for c in (data.get("rubric") or {}).get("criteria") or []:
         if not c.get("source"):
             problems.append(f"Rubric criterion '{c.get('criterion')}' has no source. Use 'Preference, no source' if there is none.")
-        st = c.get("status")
+        st = norm(c.get("status")) if c.get("status") is not None else None
         if st is not None and st not in STATUSES:
             problems.append(f"Rubric criterion '{c.get('criterion')}' needs 'status' of pass, fail or unknown.")
         if st in ("pass", "fail") and not c.get("evidence"):
             problems.append(f"Rubric criterion '{c.get('criterion')}' is marked {st} with no 'evidence'. Add the record, or set it to unknown.")
 
     ev = data.get("evaluate") or {}
-    signals = [t for t in ev.get("tests") or [] if t.get("signal")]
+    tests = ev.get("tests") or []
+    signals = [t for t in tests if t.get("signal")]
     if len(signals) > 1:
         problems.append("Only one test can be the 'signal'.")
+    if tests and not signals and not ev.get("skipped"):
+        problems.append("Flag exactly one test 'signal': true, the one check that stays red while the problem exists.")
 
     for a in data.get("assumptions") or []:
         if isinstance(a, dict) and not a.get("assumption"):
@@ -226,7 +249,7 @@ def main():
                 problems.append(f"Walkthrough answer to '{str(w.get('question'))[:60]}' is too short; answer as if you were there, two or three sentences.")
     fc = data.get("factChecks")
     if not isinstance(fc, list):
-        problems.append("Missing 'factChecks': list every 'verify:' fact with result held or corrected (an empty list means you brought no outside facts).")
+        problems.append("Missing 'factChecks': list every 'verify:' fact with result held, corrected or unchecked (an empty list means you brought no outside facts).")
     else:
         for item in fc:
             if item.get("result") not in ("held", "corrected", "unchecked"):
@@ -234,6 +257,8 @@ def main():
     ct = data.get("coverageTest") or {}
     if not ct.get("fitsNoPart") or not ct.get("fitsTwoParts"):
         problems.append("Missing 'coverageTest': name one failure that fits no part and one that fits two, and say you fixed the parts.")
+    elif ct.get("fixed") is not True:
+        problems.append("'coverageTest.fixed' must be true: fix the parts so each failure fits exactly one, then say so.")
 
     if problems:
         print("Fix these and run again:")
@@ -264,7 +289,7 @@ def main():
     print(f"Walkthrough: {len([w for w in wt if w.get('round') == 1])} questions in round 1, {len([w for w in wt if w.get('round') == 2])} in round 2.")
     print("Fact checks:" + ("" if fc else " none brought from own knowledge"))
     for c in fc:
-        print(f"  [{c.get('result')}] {c.get('fact')}")
+        print(f"  [{c.get('result')}] {c.get('fact')}" + (f" ({c.get('note')})" if c.get("note") else ""))
     print("Coverage test:")
     print("  fits no part: " + str(ct.get("fitsNoPart")))
     print("  fits two:     " + str(ct.get("fitsTwoParts")))

@@ -170,10 +170,11 @@ __REPORT_DATA__
       arr(it.deps).forEach(function (dep) {
         var a = pos[dep], b = pos[it.id]; if (!a || !b) return;
         var x1 = a.x + W, y1 = a.y + a.h / 2, x2 = b.x, y2 = b.y + b.h / 2, mx = (x1 + x2) / 2;
-        s.appendChild(svg("path", { d: "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + (x2 - 6) + "," + y2, "class": "edge", "marker-end": "url(#arrow)" }));
+        s.appendChild(svg("path", { d: "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + (x2 - 6) + "," + y2, "class": "edge", "marker-end": "url(#arrow-" + (opts.label || "").replace(/[^a-z]/gi, "").toLowerCase() + ")" }));
       });
     });
-    var defs = svg("defs", {}), m = svg("marker", { id: "arrow", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
+    var markerId = "arrow-" + (opts.label || "").replace(/[^a-z]/gi, "").toLowerCase();
+    var defs = svg("defs", {}), m = svg("marker", { id: markerId, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
     m.appendChild(svg("path", { d: "M0,0 L10,5 L0,10 z", fill: "currentColor", style: "color:var(--accent)" })); defs.appendChild(m); s.insertBefore(defs, s.firstChild);
     Object.keys(pos).forEach(function (id) {
       var p = pos[id], g = svg("g", {});
@@ -206,7 +207,7 @@ __REPORT_DATA__
   var sum = section("Answer first", "Summary", null, [
     el("ol", {}, arr(data.summary).map(function (s) { return el("li", { text: s }); })),
     conf.level ? el("p", { cls: "if", style: "margin-top:12px" }, [badge(confKind[String(conf.level).toLowerCase()] || "unknown", "Confidence: " + conf.level), conf.why ? " " + conf.why : ""]) : null,
-    arr(data.restsOn).length ? el("p", { cls: "if" }, [el("b", { text: "This answer rests on: " })].concat(arr(data.restsOn).map(function (r, i) { var b = String(r.basis || "assumed").toLowerCase(); return el("span", {}, [(i ? "; " : ""), r.fact || "", " ", badge({ measured: "pass", reported: "unknown", assumed: "no", outside: "fail" }[b] || "unknown", b)]); }))) : null,
+    arr(data.restsOn).length ? el("p", { cls: "if" }, [el("b", { text: "This answer rests on: " })].concat(arr(data.restsOn).map(function (r, i) { var b = String(r.basis || "assumed").toLowerCase(); return el("span", {}, [(i ? "; " : ""), r.fact || "", " ", badge({ measured: "pass", reported: "unknown", assumed: "no", outside: "unknown" }[b] || "unknown", b)]); }))) : null,
     arr(data.revisions).length ? el("div", { cls: "legend" }, [el("b", { text: "Changed since the last run: " })].concat(arr(data.revisions).map(function (r) { return el("span", { text: (r.date ? r.date + ": " : "") + (r.changed || "") + " " }); }))) : null
   ]);
   sum.classList.add("summary"); app.appendChild(sum);
@@ -266,7 +267,7 @@ __REPORT_DATA__
   var hyp = arr(dec.hypotheses), iin = dec.isIsNot || {}, facts = arr(data.facts), changes = arr(dec.changes), real = dec.isItReal;
   if (hyp.length || arr(iin.rows).length || dec.gap || facts.length) {
     var lk = { leading: ["strong", "Leading"], possible: ["unknown", "Possible"], unlikely: ["no", "Unlikely"] };
-    var basisKind = { measured: "pass", reported: "unknown", assumed: "no", outside: "fail" };
+    var basisKind = { measured: "pass", reported: "unknown", assumed: "no", outside: "unknown" };
     var diag = [];
     if (facts.length) diag.push(el("h3", { text: "What we know" }), el("ul", { cls: "facts" }, facts.map(function (f) {
       var b = String(f.basis || "reported").toLowerCase();
@@ -325,7 +326,7 @@ __REPORT_DATA__
   var stepBack = sb ? el("div", { cls: "grid g3 stepback", style: "margin-bottom:16px" }, [
     el("div", { cls: "card" }, [el("div", { cls: "col-title", text: "What we measure" }), el("p", { text: sb.measure || "" })]),
     el("div", { cls: "card" }, [el("div", { cls: "col-title", text: "What we actually want" }), el("p", { text: sb.goal || "" })]),
-    el("div", { cls: "card warn" }, [el("div", { cls: "col-title", text: "Where they part ways" }), el("p", { text: sb.gap || "" })])
+    el("div", { cls: "card warn" }, [el("div", { cls: "col-title", text: "Where they can part ways" }), el("p", { text: sb.gap || "" })])
   ]) : null;
   app.appendChild(section("2 · Abstract", "Keep what matters", ab.takeaway, [stepBack, el("div", { cls: "grid g2" }, [abCol("keep", "Matters now", ab.mattersNow), abCol("aside", "Set aside for now", ab.setAside)])], ab.skipped));
 
@@ -349,6 +350,7 @@ __REPORT_DATA__
   app.appendChild(section("4 · Parallelize", "Run independent work at the same time", pa.takeaway, [
     streams.length ? layered(streams, { nodeW: 230, wrapAt: 28, label: "Work streams by wave", colLabels: function (ci) { return ci === 0 ? "WAVE 1 · START NOW, IN PARALLEL" : "WAVE " + (ci + 1) + " · AFTER WAVE " + ci; } }) : null,
     el("p", { cls: "legend", text: "Everything in the same wave can run at the same time. An arrow means that stream waits for the other one's result. The small line under each stream says who does it, what kind of work it is, and whether it can be undone; a red border means it can't." }),
+    arr(pa.streams).length ? el("ul", { cls: "facts", style: "margin-top:12px" }, arr(pa.streams).map(function (w) { return el("li", {}, [el("b", { text: (w.name || "") + ": " }), w.brief || "", w.returns ? el("span", { cls: "why", text: " Returns: " + w.returns }) : null]); })) : null,
     fails.length ? el("div", { style: "margin-top:12px" }, [el("h3", { text: "If the fix fails, it is probably because" })].concat(fails.map(function (w) { return el("p", { cls: "if" }, [el("b", { text: w.name + ": " }), w.failsIf]); }))) : null
   ], pa.skipped));
 
@@ -383,7 +385,7 @@ __REPORT_DATA__
   // How the map was checked: the agent's fact checks and the coverage test.
   var fcs = arr(data.factChecks), cov = data.coverageTest;
   if (fcs.length || cov) {
-    var fcKind = { held: "pass", corrected: "unknown", unchecked: "fail" };
+    var fcKind = { held: "pass", corrected: "strong", unchecked: "unknown" };
     app.appendChild(section("Checked", "How this map was checked", "Facts the map brought from outside, and the test that every failure fits exactly one part.", [
       fcs.length ? el("ul", { cls: "facts" }, fcs.map(function (c) { var r = String(c.result || "unchecked").toLowerCase(); return el("li", {}, [badge(fcKind[r] || "unknown", r), " ", c.fact || "", c.note ? el("span", { cls: "why", text: " · " + c.note }) : null]); })) : el("p", { cls: "why", text: "No outside facts were brought in." }),
       cov ? el("div", { cls: "card", style: "margin-top:12px" }, [el("p", { cls: "if" }, [el("b", { text: "A failure that fitted no part: " }), cov.fitsNoPart || ""]), el("p", { cls: "if" }, [el("b", { text: "A failure that fitted two: " }), cov.fitsTwoParts || ""])]) : null

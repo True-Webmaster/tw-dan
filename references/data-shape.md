@@ -5,7 +5,7 @@ This example is about an unrelated business on purpose. It shows the format only
 ```json
 {
   "title": "Why some of the bakery's weekend pre-orders are missing at pickup",
-  "problem": "Customers order online for Saturday pickup, but some orders are missing or not ready when they arrive.",
+  "problem": "Customers order online for Saturday pickup, but some orders are missing or not ready when they come in. I think the Saturday staff are losing them.",
   "restated": "About one weekend pre-order in ten is not there when the customer comes to collect it, and the owner does not know where it goes missing.",
   "theirTheory": "Are the Saturday staff losing the orders?",
   "client": "Neighbourhood bakery, one shop",
@@ -21,7 +21,7 @@ This example is about an unrelated business on purpose. It shows the format only
   },
   "restsOn": [
     {
-      "fact": "The baking list is made once, on Thursday night",
+      "fact": "The baking list is printed once, on Thursday night",
       "basis": "reported"
     },
     {
@@ -31,38 +31,50 @@ This example is about an unrelated business on purpose. It shows the format only
   ],
   "facts": [
     {
-      "fact": "Who: online pre-order customers, Saturday pickup",
+      "fact": "Who: online pre-order customers collecting on Saturday",
       "basis": "reported"
     },
     {
-      "fact": "How much: about 1 in 10 pre-orders missing or not ready; walk-in sales unaffected",
+      "fact": "What: an order is missing or not ready at pickup",
       "basis": "reported"
     },
     {
-      "fact": "When it started: unknown",
+      "fact": "When it started: not stated",
       "basis": "assumed"
+    },
+    {
+      "fact": "Where: one shop, the Saturday counter",
+      "basis": "reported"
+    },
+    {
+      "fact": "How much: about 40 pre-orders a week, about 1 in 10 missing or not ready (so about 4 a week); walk-in sales unaffected",
+      "basis": "reported"
+    },
+    {
+      "fact": "How long: the owner says 'a few weeks'",
+      "basis": "reported"
     }
   ],
   "walkthrough": [
     {
       "round": 1,
       "question": "What does a Friday-night order look like from the customer's side, minute by minute, after they press pay?",
-      "answer": "They get a payment confirmation from the card processor and a thank-you page. Nothing tells them whether the shop has seen it. They assume Saturday is fine because the site let them choose it."
+      "answer": "If the form works like most, they get a payment confirmation and a thank-you page; nothing tells them whether the shop has seen it (I am supplying that detail; the test order will show it). They would assume Saturday is fine because the site let them choose it."
     },
     {
       "round": 1,
       "question": "Who prints the baking list on Thursday night, from what, and what happens to an order that arrives at 9 pm Friday?",
-      "answer": "The owner prints it from the order dashboard at about 8 pm Thursday and bakes from paper. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am."
+      "answer": "The owner says she prints it from the order dashboard at about 8 pm Thursday and bakes from paper; that is reported, not seen. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am."
     },
     {
       "round": 1,
       "question": "What does the Saturday counter person have in front of them when a customer says 'I ordered online'?",
-      "answer": "The printed list and a box of bagged orders with names on them. If the name is not on the list, they search the dashboard on the shop tablet, find the order, and have nothing to hand over."
+      "answer": "If the counter works from the printed list and a box of bagged orders with names on them (supplied; confirm on Saturday), a name that is not on the list sends them to the dashboard on the shop tablet, where they find the order and have nothing to hand over. If instead they work from the screen, a missing bag would be the clue, not a missing name."
     },
     {
       "round": 1,
       "question": "Which orders pass through this path but are not weekend pre-orders: test orders, cancelled orders, orders for Sunday?",
-      "answer": "The form takes any date, so Sunday and weekday orders are mixed into the same dashboard. A Thursday print that filters by 'Saturday' could miss an order with a mistyped date; a cancelled order might still be baked."
+      "answer": "If the form takes any date (supplied; the test order will show it), Sunday and weekday orders are mixed into the same dashboard; a Thursday print filtered by 'Saturday' could miss an order with a mistyped date, and a cancelled order might still be baked. If the form only offers Saturday, this whole line falls away."
     },
     {
       "round": 1,
@@ -72,7 +84,7 @@ This example is about an unrelated business on purpose. It shows the format only
     {
       "round": 1,
       "question": "If I stood in the bakery at 4 am Saturday for an hour, what would I notice about how the list is used?",
-      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped."
+      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped. Each of those would point at a different part."
     },
     {
       "round": 2,
@@ -87,7 +99,7 @@ This example is about an unrelated business on purpose. It shows the format only
   ],
   "decompose": {
     "depth": 3,
-    "gap": "About 1 in 10 weekend pre-orders (roughly 4 of 40 a week) is missing or not ready at pickup; the owner expects none.",
+    "gap": "About 1 in 10 weekend pre-orders (about 4 of 40 a week) is missing or not ready at pickup; the owner expects none.",
     "isItReal": {
       "verdict": "can't tell yet",
       "why": "No count of missing orders by week has been kept; 4 of 40 could be one bad weekend. Compare the last 12 Saturdays."
@@ -162,7 +174,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "danger": true
       },
       {
-        "name": "Orders are baked but handed to the wrong customer",
+        "name": "The owner's theory: orders are baked but the Saturday staff hand them to the wrong customer",
         "predicts": "Missing orders are on the list and were baked",
         "explains": "Customers finding nothing at pickup",
         "doesNotExplain": "Orders missing from the list",
@@ -228,6 +240,16 @@ This example is about an unrelated business on purpose. It shows the format only
       "area": "The order form may not enforce the cut-off",
       "whyItMatters": "If it still accepts orders after the list is printed, those orders are lost by design.",
       "howToFind": "Place a test order on Friday morning and see if it is accepted."
+    },
+    {
+      "area": "Card payments can settle after the order is placed",
+      "whyItMatters": "An order that shows 'pending' on Thursday night may be skipped as unpaid and then settle on Friday.",
+      "howToFind": "Ask the payment provider how long settlement takes; look at one pending order's timestamps."
+    },
+    {
+      "area": "The dashboard's 'Saturday' filter depends on the date the customer typed",
+      "whyItMatters": "A customer who picks the wrong date is invisible to a filtered print.",
+      "howToFind": "Print the list unfiltered once and compare it with the filtered one."
     }
   ],
   "abstract": {
@@ -247,7 +269,7 @@ This example is about an unrelated business on purpose. It shows the format only
     "setAside": [
       {
         "item": "Redesigning the website",
-        "why": "The form works; the handoff after it doesn't. Revisit if the test order fails."
+        "why": "Nothing yet shows the form is at fault; the handoff after it is the cheaper place to look first. The Friday test order brings this back if it fails."
       }
     ]
   },
@@ -278,9 +300,9 @@ This example is about an unrelated business on purpose. It shows the format only
       {
         "id": "s2",
         "name": "Test the cut-off",
-        "brief": "Place a late test order on Friday and see whether it is accepted and where it appears.",
+        "brief": "Place one late test order on Friday (about the cost of one loaf) and see whether it is accepted and where it appears.",
         "waitsFor": [],
-        "who": "AI",
+        "who": "you",
         "kind": "check",
         "door": "reversible",
         "returns": "Accepted yes/no, and the confirmation received"
@@ -306,7 +328,7 @@ This example is about an unrelated business on purpose. It shows the format only
     "criteria": [
       {
         "criterion": "Every paid order appears on the baking list",
-        "source": "The owner's own order records",
+        "source": "Preference, no source (the order records give the count; nobody has agreed the target)",
         "pass": "All orders matched",
         "fail": "Any order missing",
         "measure": "Weekly comparison",
@@ -319,6 +341,14 @@ This example is about an unrelated business on purpose. It shows the format only
         "fail": "Any late",
         "measure": "Saturday counter log",
         "status": "unknown"
+      },
+      {
+        "criterion": "A late order gets a reply within an hour saying whether it can be made",
+        "source": "Preference, no source",
+        "pass": "Every late order answered",
+        "fail": "Any late order left unanswered",
+        "measure": "Order dashboard timestamps against reply times",
+        "status": "unknown"
       }
     ]
   },
@@ -329,7 +359,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "test": "Order-to-list comparison",
         "how": "Match orders to the list",
         "expect": "If the cut-off is the cause, no order placed before Thursday night is missing",
-        "when": "Every Friday afternoon, for three weekends before judging",
+        "when": "Every Monday, for the previous weekend, for three weekends before judging",
         "signal": true
       },
       {
@@ -349,8 +379,8 @@ This example is about an unrelated business on purpose. It shows the format only
   },
   "assumptions": [
     {
-      "assumption": "The baking list is made once, on Thursday night",
-      "ifWrong": "The cut-off explanation falls; copying or pickup leads."
+      "assumption": "The owner, not an agency, is asking; 'you' in the streams is the owner",
+      "ifWrong": "Streams owned by 'you' move to 'client'."
     },
     {
       "assumption": "Orders are paid online at the time of ordering",
@@ -361,8 +391,20 @@ This example is about an unrelated business on purpose. It shows the format only
     {
       "question": "Who builds the baking list, and when?",
       "whoCanAnswer": "The owner",
-      "ourGuess": "The owner, Thursday night, by hand",
+      "ourGuess": "The owner, Thursday night, printed from the dashboard",
       "changesWhat": "Which of the two leading explanations to check first"
+    },
+    {
+      "question": "Does the order form accept a Saturday order on Friday?",
+      "whoCanAnswer": "The owner, or a test order",
+      "ourGuess": "Yes, with no warning",
+      "changesWhat": "Whether the fix is a cut-off or a person"
+    },
+    {
+      "question": "Are the missing orders paid, and when did the payment settle?",
+      "whoCanAnswer": "The owner's payment provider",
+      "ourGuess": "Paid, settled within minutes",
+      "changesWhat": "Whether 'unpaid' is a reason an order was skipped"
     }
   ],
   "factChecks": [
@@ -373,13 +415,13 @@ This example is about an unrelated business on purpose. It shows the format only
     }
   ],
   "coverageTest": {
-    "fitsNoPart": "The customer ordered from the wrong shop's website",
-    "fitsTwoParts": "An order that is on the list but baked for the wrong day",
+    "fitsNoPart": "The customer ordered from the wrong shop's website; fixed by adding 'which shop the order is for' to the order form's check, so a stray order is caught before the list.",
+    "fitsTwoParts": "An order that is on the list but baked for the wrong day fitted both the list and pickup; fixed by giving the list part the day the order is printed under, and pickup only what is in the box on Saturday.",
     "fixed": true
   },
   "nextAction": {
     "action": "Match last Saturday's online orders to that week's baking list, noting each missing order's time.",
-    "owner": "The owner",
+    "owner": "you",
     "by": "Tomorrow",
     "rulesOut": "Separates the cut-off explanation from copying and pickup in one pass."
   }

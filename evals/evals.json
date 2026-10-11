@@ -3,27 +3,28 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "/tw-dan Our roofing client's Google Ads campaigns aren't delivering. Google Ads reports lots of conversions, but the client says the calls aren't turning into jobs.",
-      "expected_output": "One HTML report plus its JSON, built by fill.py with 'Checks passed'. The IS / IS NOT table includes rows for who is calling and how long calls last; at least one explanation is about what Google Ads counts as a conversion; a check involves listening to call recordings or matching calls to jobs.",
+      "prompt": "/tw-dan Our daycare's waiting list went from forty families to none in the four months since we raised fees. The director says it's the fees.",
+      "expected_output": "One HTML report plus its JSON, built by fill.py with 'Checks passed'. The director's theory appears as a question, competes as one explanation among at least three that point at different parts, and the map names the record that would separate them before any change is proposed.",
       "files": [],
       "assertions": [
         "fill.py exits 0 and prints 'Checks passed'",
-        "decompose.isIsNot.rows contains a dimension about call length or duration",
-        "decompose.isIsNot.rows contains a dimension about who the caller is",
-        "At least one hypothesis name mentions counting, conversion actions or what is counted",
-        "Summary line 1 does not name a single cause as certain when facts all have basis 'reported' or 'assumed'"
+        "theirTheory is present and ends with a question mark",
+        "walkthrough has at least six round-1 and two round-2 entries, each question naming something from the problem",
+        "At least three hypotheses have distinct ruleOut text and point at different parts",
+        "Summary line 1 does not name a single cause as certain when facts all have basis 'reported' or 'assumed'",
+        "nextAction names a record to obtain or a check to run, not a change to make"
       ]
     },
     {
       "id": 2,
-      "prompt": "/tw-dan Our dental client's new-patient bookings dropped about 30% in the two months since we launched their redesigned website. Traffic looks roughly the same. I think the new booking form is the problem.",
-      "expected_output": "A report in which the user's theory appears as theirTheory phrased as a question, competes as one hypothesis, and is not the only 'leading' explanation unless evidence is cited.",
+      "prompt": "/tw-dan We built an AI support chatbot for a SaaS client. The dashboard says it deflects 60% of conversations, but the client's support ticket volume hasn't dropped and their CSAT score went down two points since launch.",
+      "expected_output": "A report that holds several explanations open, including at least one that goes against the person's framing, and whose streams say who does each one.",
       "files": [],
       "assertions": [
-        "theirTheory is present and ends with a question mark",
-        "At least three hypotheses have distinct ruleOut text",
-        "One hypothesis concerns the count or tracking changing rather than the bookings",
-        "nextAction.rulesOut names at least two hypotheses"
+        "fill.py exits 0 and prints 'Checks passed'",
+        "At least one hypothesis goes against the framing in the prompt",
+        "Every stream has who, kind and door, and no one-way stream sits in wave 1",
+        "Every walkthrough round-2 question refers to a round-1 answer"
       ]
     },
     {
@@ -40,7 +41,7 @@
     },
     {
       "id": 4,
-      "prompt": "Write the press release for our roofing client's storm-season promotion.",
+      "prompt": "Write the press release for our client's spring promotion.",
       "expected_output": "The skill does not trigger; this is a writing deliverable, not a problem to map.",
       "files": [],
       "assertions": [

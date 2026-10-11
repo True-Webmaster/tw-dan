@@ -66,7 +66,7 @@ A run takes about ten minutes. The skill writes two files in your current folder
 
 ## How it was tested
 
-Thirteen fresh runs in Claude Code on the day it shipped, across SEO, technical SEO, sales, AI and software engineering, each by an agent that could read only the skill's own files, plus one run through the Codex CLI: all built on the first try. A run with the user's own theory planted ("I think the new booking form is the problem") did not take the bait. A run with a budget choice refused to move money without evidence. One reply round, fed real numbers, cleared the website and moved the lead to a staffing change. A no-skill baseline reached the same checks; the difference the skill makes is discipline: no fix before evidence, no unsourced claims, and your framing treated as a question.
+Twenty fresh runs over two days in Claude Code and the Codex CLI, across SEO, technical SEO, sales, AI, software engineering and a daycare, each by an agent that could read only the skill's own files: all built on the first try. Two independent audits checked the skill for anything that hints at an industry, a cause or a check; what they found was removed, and every example in the method is about a bakery. A run with the user's own theory planted ("I think the new booking form is the problem") did not take the bait. A run with a budget choice refused to move money without evidence. One reply round, fed real numbers, cleared the website and moved the lead to a staffing change. A no-skill baseline reached the same checks; the difference the skill makes is discipline: no fix before evidence, no unsourced claims, and your framing treated as a question.
 
 The test definitions are in `evals/evals.json`.
 
