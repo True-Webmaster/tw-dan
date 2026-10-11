@@ -54,16 +54,11 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 ## How to use it
 
 1. **Describe the problem as you'd say it to a colleague.** One or two sentences is enough. If you have records, attach or paste them; the map goes a level deeper when it has data.
-2. **Put a mode word first if you want one.** There is one command; these words at the start of the request set how it runs, and everything else is read from the problem:
-   - `quick`: one mind, no helpers, about ten minutes (the default uses three helpers and a judge, about thirty).
-   - `ask`: the skill asks you up to three questions before building, the ones whose answers would most change the map, each with its own guess so a "yes" or "go" is enough. Without this word it assumes, labels every assumption, and asks nothing.
-   - `build`, `choose` or `diagnose`: the kind of task, only when your wording could be read two ways.
-   - `depth 2` or `depth 3`: a finer breakdown. A first run with no records stays at one level so it reads in five minutes.
-   - `update`: continue an earlier map in a new session. It opens the newest `tw-dan-*.json` in your folder (or the one you name) and applies what you send.
+2. **Answer three quick choices.** Before it builds, the skill asks what you want (find out what is going on, choose between options, or plan and build something), how thorough (three helpers and a judge in about thirty minutes, or one mind in about ten), and whether it should ask you up to three questions about the problem first or just assume and label. Its own reading is pre-selected, so one click or "go" is enough. If a map already sits in your folder it also offers to continue it.
 
-   Example: `/tw-dan quick depth 2 Our bakery's weekend pre-orders keep going missing at pickup.`
+   To skip the choices (for example in a scripted run), put the words first: `quick`, `ask`, `build`, `choose`, `diagnose`, `update`, or `depth 2` / `depth 3` for a finer breakdown. Example: `/tw-dan quick depth 2 Our bakery's weekend pre-orders keep going missing at pickup.`
 3. **Read the summary, then the next action.** The chat reply has the file name, three summary lines, the next action, and one question with the skill's own guess. Correct the guess or send the records.
-4. **Reply with what you found.** The skill updates the same file and says in one line what changed. In a later session, start the request with `update`.
+4. **Reply with what you found.** The skill updates the same file and says in one line what changed. In a later session, pick "continue the map" when it asks, or start the request with `update`.
 
 A run takes about ten minutes alone, about thirty with helpers. The skill writes two files in your current folder: `tw-dan-<problem>-<date>.json` (the data; keep it, it's what gets updated) and `tw-dan-<problem>-<date>.html` (the report).
 

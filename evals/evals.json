@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "/tw-dan Our daycare's waiting list went from forty families to none in the four months since we raised fees. The director says it's the fees.",
+      "prompt": "/tw-dan diagnose Our daycare's waiting list went from forty families to none in the four months since we raised fees. The director says it's the fees.",
       "expected_output": "One HTML report plus its JSON, built by fill.py with 'Checks passed'. The director's theory appears as a question, competes as one explanation among at least three that point at different parts, and the map names the record that would separate them before any change is proposed.",
       "files": [],
       "assertions": [
@@ -17,7 +17,7 @@
     },
     {
       "id": 2,
-      "prompt": "/tw-dan We built an AI support chatbot for a SaaS client. The dashboard says it deflects 60% of conversations, but the client's support ticket volume hasn't dropped and their CSAT score went down two points since launch.",
+      "prompt": "/tw-dan diagnose We built an AI support chatbot for a SaaS client. The dashboard says it deflects 60% of conversations, but the client's support ticket volume hasn't dropped and their CSAT score went down two points since launch.",
       "expected_output": "A report that holds several explanations open, including at least one that goes against the person's framing, and whose streams say who does each one.",
       "files": [],
       "assertions": [
@@ -29,7 +29,7 @@
     },
     {
       "id": 3,
-      "prompt": "/tw-dan A plumbing client with a $4k/month budget asked whether we should move their money from Google Ads to Local Services Ads. Their Google Ads cost per lead has doubled this year. Which way should we go? depth 1",
+      "prompt": "/tw-dan choose depth 1 A plumbing client with a $4k/month budget asked whether we should move their money from Google Ads to Local Services Ads. Their Google Ads cost per lead has doubled this year. Which way should we go?",
       "expected_output": "A choice-mode report at depth 1: problemType.type is 'choose between options', the IS / IS NOT columns are the two options, the money-moving stream is door 'one-way' and waits for at least one check.",
       "files": [],
       "assertions": [
@@ -41,7 +41,7 @@
     },
     {
       "id": 4,
-      "prompt": "/tw-dan Help me plan a referral programme for a dental client: existing patients bringing in new patients. They have never had one.",
+      "prompt": "/tw-dan build Help me plan a referral programme for a dental client: existing patients bringing in new patients. They have never had one.",
       "expected_output": "A build-mode report: problemType.type is 'build something', the parts are building blocks with build order, one block is the measurement, the explanations are competing approaches including a simpler one, and the next action is the smallest piece to build or test, not the whole programme.",
       "files": [],
       "assertions": [
@@ -76,13 +76,25 @@
     {
       "id": 7,
       "prompt": "/tw-dan ask Our gym's membership cancellations doubled in September. The manager thinks it's the new app.",
-      "expected_output": "Before any file is written, one chat message with at most three questions, each written from this problem (naming the app, the cancellations, a record or a date), each with the skill's own guess in brackets, and a line saying the person can answer any of them or say 'go'. The map is built only after the reply, with answers as facts (basis reported) and unanswered questions as labelled assumptions.",
+      "expected_output": "The ask word skips the routing choices. Before any file is written, one chat message with at most three questions, each written from this problem (naming the app, the cancellations, a record or a date), each with the skill's own guess in brackets, and a line saying the person can answer any of them or say 'go'. The map is built only after the reply, with answers as facts (basis reported) and unanswered questions as labelled assumptions.",
       "files": [],
       "assertions": [
         "No tw-dan JSON or HTML file exists before the person replies",
         "The questions message has at most three questions, each naming something from the request",
         "Every question carries a guess, and the message says 'go' is an acceptable answer",
         "After the reply, each answered question appears in facts with basis 'reported' or 'measured'"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/tw-dan Help me plan a referral programme for a dental client: existing patients bringing in new patients. They have never had one.",
+      "expected_output": "No mode word, so the skill routes first: three choices in one message or one dialog (what the person wants, how thorough, ask first or assume), each with a recommended option. The recommended kind is 'plan or build something', the recommended thoroughness depends on whether the host has helpers, and 'ask first' is recommended because the request has no numbers and no records. Nothing is written before the person answers.",
+      "files": [],
+      "assertions": [
+        "No tw-dan JSON or HTML file exists before the person replies",
+        "The routing message has exactly three choices, each with one option marked as recommended",
+        "The recommended option for the kind of task is 'plan or build something'",
+        "The message says 'go' (or one click) accepts the recommended options"
       ]
     }
   ]
