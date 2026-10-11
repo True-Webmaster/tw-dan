@@ -83,6 +83,8 @@ The test definitions are in `evals/evals.json`.
 
 ## Files
 
+SKILL.md is the router: it asks what you want, then loads `core.md` (what every map does) plus one file for the mode. A reply to an earlier map loads `reply.md` instead.
+
 ```text
 tw-dan/
 ├── SKILL.md                   # the instructions the agent follows
