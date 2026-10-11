@@ -1,13 +1,16 @@
 """Fill the Human in the Loop map template with report data and check it.
 
 Usage:  python <skill-folder>/scripts/fill.py <path to data.json> <path to output.html>
+        python <skill-folder>/scripts/fill.py --check <path to data.json>
 Full paths work from any folder. Prints problems and
 exits 1 if the data is not usable; prints the summary and takeaways in
-order, then the output path, when the report is written.
+order, then the output path, when the report is written. With --check it
+runs the checks and writes nothing.
 """
 import json
 import os
 import sys
+from typing import Any, Dict, List, Optional
 
 LIKELIHOODS = ("leading", "possible", "unlikely")
 STATUSES = ("pass", "fail", "unknown")
@@ -24,11 +27,11 @@ VERDICTS = {
 }
 
 
-def find_loop(items, key):
+def find_loop(items: List[Dict[str, Any]], key: str) -> Optional[str]:
     """Return the id of an item that reaches itself through `key`, or None."""
     links = {it.get("id"): list(it.get(key) or []) for it in items}
 
-    def visit(node, path):
+    def visit(node: Any, path: List[Any]) -> Optional[str]:
         if node in path:
             return node
         for nxt in links.get(node, []):
@@ -44,12 +47,12 @@ def find_loop(items, key):
     return None
 
 
-def norm(text):
+def norm(text: Any) -> str:
     """Lower-case, single-spaced form of a value, for comparing enumerated fields."""
     return " ".join(str(text or "").lower().split())
 
 
-def winpath(path):
+def winpath(path: str) -> str:
     """Windows refuses paths over 260 characters unless they carry the long-path prefix."""
     full = os.path.abspath(path)
     if os.name == "nt" and len(full) > 240 and not full.startswith("\\\\?\\"):
@@ -61,9 +64,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE = winpath(os.path.join(HERE, "..", "assets", "report-template.html"))
 
 
-def objects(seq, label, problems):
+def objects(seq: Any, label: str, problems: List[str]) -> List[Dict[str, Any]]:
     """Return the dict entries of `seq`; report anything else as a problem instead of crashing."""
-    out = []
+    out: List[Dict[str, Any]] = []
     for i, item in enumerate(list(seq or [])):
         if isinstance(item, dict):
             out.append(item)
@@ -72,7 +75,7 @@ def objects(seq, label, problems):
     return out
 
 
-def canonicalise(data):
+def canonicalise(data: Dict[str, Any]) -> Dict[str, Any]:
     """Rewrite enumerated fields to the exact strings the template compares against."""
     dec = data.get("decompose") or {}
     for h in dec.get("hypotheses") or []:
@@ -93,11 +96,16 @@ def canonicalise(data):
     return data
 
 
-def main():
-    if len(sys.argv) != 3:
+def main() -> int:
+    args = sys.argv[1:]
+    check_only = bool(args) and args[0] == "--check"
+    if check_only:
+        args = args[1:]
+    if len(args) != (1 if check_only else 2):
         print(__doc__)
         return 1
-    src, out = winpath(sys.argv[1]), winpath(sys.argv[2])
+    src = winpath(args[0])
+    out = "" if check_only else winpath(args[1])
     try:
         with open(src, encoding="utf-8") as f:
             data = json.load(f)
@@ -111,7 +119,7 @@ def main():
         print("The JSON must be one object, not a list.")
         return 1
 
-    problems = []
+    problems: List[str] = []
     if not data.get("title"):
         problems.append("Missing 'title'.")
     summary = data.get("summary")
@@ -152,7 +160,7 @@ def main():
 
     deepest = [1]
 
-    def check_children(items, level, path):
+    def check_children(items: Any, level: int, path: Any) -> None:
         for c in objects(items, f"children of '{path}'", problems):
             deepest[0] = max(deepest[0], level)
             for key in ("name", "question", "check"):
@@ -181,8 +189,8 @@ def main():
     hyps = objects(dec.get("hypotheses"), "decompose.hypotheses", problems)
     if len(hyps) < 3:
         problems.append("List at least 3 competing explanations in 'decompose.hypotheses', including one that goes against the obvious answer.")
-    seen_rule_outs = {}
-    probs = []
+    seen_rule_outs: Dict[str, Any] = {}
+    probs: List[float] = []
     for h in hyps:
         if not h.get("ruleOut") or not h.get("cheapestCheck"):
             problems.append(f"Explanation '{h.get('name')}' needs 'ruleOut' and 'cheapestCheck'.")
@@ -326,6 +334,9 @@ def main():
         for p in problems:
             print(" - " + p)
         return 1
+    if check_only:
+        print("Checks passed (nothing written).")
+        return 0
 
     canonicalise(data)
     # Escape '</' so text like '</script>' cannot end the data block early.
