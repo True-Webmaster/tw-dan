@@ -86,12 +86,13 @@ The test definitions are in `evals/evals.json`.
 ```text
 tw-dan/
 ├── SKILL.md                   # the instructions the agent follows
-├── references/method.md       # the six-skill method and the rules
-├── references/data-shape.md   # a worked example of the data (about a bakery, on purpose)
+├── references/core.md         # what every map does: facts, the walkthrough, the six skills, the data shape
+├── references/diagnose.md     # what each section means when something is wrong
+├── references/choose.md       # what each section means for a choice between options
+├── references/build.md        # what each section means for something to build
 ├── references/team.md         # the three helpers and the judge
-├── references/update.md       # what to do when the person replies with records or corrections
-├── references/build.md        # how every section changes when the task is to build something
-├── references/choose.md       # how every section changes when the task is a choice
+├── references/reply.md        # what to do when the person replies with records or corrections
+├── references/data-shape.md   # a worked example of the data (about a bakery, on purpose)
 ├── assets/report-template.html# draws the report from the data, offline
 ├── scripts/fill.py            # validates the data and builds the report
 └── evals/evals.json           # test cases

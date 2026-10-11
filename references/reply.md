@@ -1,4 +1,4 @@
-# When the person replies
+# Reply: when the person comes back with records or corrections
 
 They correct an assumption, answer an open question or send a record, in the same session or a new one (`update`, or naming the map). Open the JSON they named, or the most recently changed `tw-dan-*.json` in the current folder, and read it before anything else; if there is none, say so and build a fresh map from SKILL.md step 2. Keep the same file names and `date`; add to `revisions` today's date and one line on what moved.
 

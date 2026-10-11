@@ -25,20 +25,14 @@ Do not rank the explanations, give no percentages, no summary and no fix. A chec
 Reply as one JSON object: {"walkthrough":[{"round":1,"question":"...","answer":"..."},{"round":2,"question":"...","answer":"..."}],"hypotheses":[{"name":"...","predicts":"...","ruleOut":"...","cheapestCheck":"..."}],"parts":[{"name":"...","question":"...","check":"..."}]}
 ```
 
-The three vantages:
-
-- **The customer's path.** "Follow one customer (or one order, one visit, one enquiry) from the first moment they appear to the last thing that happens to them. Where could they drop out, be turned away, be counted wrongly, or come back by another door?"
-- **The record-keeper.** "Follow how the number the person quoted gets made: who writes what down, in which tool, at which moment, under which rule. Where could the number move while nothing in the business moved?"
-- **The sceptic.** "Assume nothing is wrong with the business. What else would produce exactly these facts: timing, season, a comparison that isn't like for like, something that changed elsewhere, an expectation that was never realistic?"
-
-When the task is to build something, use the three vantages in [build.md](build.md) instead, and change the brief as build.md says.
+The three vantages, with their tags and any change to the brief, are in the mode file loaded with core.md: [diagnose.md](diagnose.md), [choose.md](choose.md) or [build.md](build.md).
 
 ## 2. Merge
 
 - Put every helper's explanations in one list. Two explanations with the same rule-out evidence are one; keep the clearer wording. Three helpers naming the same explanation count as one, not as three votes: agreement between helpers is not evidence. Keep anything with a distinct rule-out, even if only one helper found it, up to eight; past eight, fold the weakest into its nearest neighbour and say so in its `explains`. No helper claim enters the map's own fields unless you can name the fact or record it rests on; a claim with nothing behind it stays in the walkthrough as the helper's words.
-- Keep the walkthrough entries that led to a kept explanation, tagged with their `vantage` (customer, records, sceptic; for a build: user, runs, sceptic). Up to twelve in round 1 and five in round 2; cut the rest. What you cut survives only as a part or a stream in your own words, labelled imagined where the helper said so. Do not reword a helper's text; it is their thinking, labelled as imagined where they said so. A fact from outside knowledge that first surfaces in a helper's answer gets its "verify:" in `factChecks`, not in the helper's words. What you write in the map's own fields must not repeat a helper's imagined detail as fact.
+- Keep the walkthrough entries that led to a kept explanation, tagged with their `vantage` from the mode file. Up to twelve in round 1 and five in round 2; cut the rest. What you cut survives only as a part or a stream in your own words, labelled imagined where the helper said so. Do not reword a helper's text; it is their thinking, labelled as imagined where they said so. A fact from outside knowledge that first surfaces in a helper's answer gets its "verify:" in `factChecks`, not in the helper's words. What you write in the map's own fields must not repeat a helper's imagined detail as fact.
 - Union the parts; a part named by two helpers under different names is one part. The build order (`dependsOn`) is yours alone to write; never take it from a helper.
-- Then write everything else yourself (gap, is it real, what changed, IS / IS NOT, probabilities and likelihood, blind spots, abstract, reuse, streams, rubric, tests, assumptions, open questions, next action), as in method.md. Set `builtBy: "team"`.
+- Then write everything else yourself (gap, is it real, what changed, IS / IS NOT, probabilities and likelihood, blind spots, abstract, reuse, streams, rubric, tests, assumptions, open questions, next action), as in core.md and the mode file. Set `builtBy: "team"`.
 
 ## 3. The judge (one round, after fill.py passes once with `review: []`)
 
@@ -64,4 +58,4 @@ One round only; a second judge round does not help. Change an entry only when th
 
 ## If the host has no helpers
 
-Do the walkthrough yourself (method.md, "Talk it through"), run the three checks in SKILL.md's fact-check step, and set `builtBy: "solo"`. The map is still valid; it has had one mind on it instead of five, and the report says so.
+Do the walkthrough yourself (core.md, "Talk it through", from the mode file's three vantages), run the three checks in SKILL.md's fact-check step, and set `builtBy: "solo"`. The map is still valid; it has had one mind on it instead of five, and the report says so.

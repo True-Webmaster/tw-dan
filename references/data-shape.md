@@ -1,6 +1,6 @@
 # Data shape: worked example
 
-This example is about an unrelated business on purpose. It shows the format only: do not reuse its parts, causes or conclusions. Work out your own from the problem in front of you. Field meanings are in method.md.
+This example is about an unrelated business on purpose. It shows the format only: do not reuse its parts, causes or conclusions. Work out your own from the problem in front of you. Field meanings are in core.md and the mode file.
 
 ```json
 {
@@ -156,6 +156,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Every missing order has an order time after the list was printed",
         "explains": "Missing orders",
         "doesNotExplain": "Orders that are on the list but not ready",
+        "contradicts": "none yet",
         "ruleOut": "Missing orders were placed before the list was made",
         "cheapestCheck": "Compare order times with when the list was printed",
         "likelihood": "leading",
@@ -166,6 +167,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Missing orders are spread across the week with no time pattern",
         "explains": "Random missing orders",
         "doesNotExplain": "A pattern by day or item",
+        "contradicts": "The owner says the list comes out of the order system, which would leave nothing to copy",
         "ruleOut": "The list is printed straight from the order system",
         "cheapestCheck": "Watch the list being made once",
         "likelihood": "possible",
@@ -176,6 +178,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Paid orders exist in the payment account but not in the order list",
         "explains": "Orders the owner never saw",
         "doesNotExplain": "Orders that are on the list but not ready",
+        "contradicts": "No customer has complained of paying without a confirmation",
         "ruleOut": "Every paid order appears in the order list",
         "cheapestCheck": "Match the payment account to the order list for one week",
         "likelihood": "possible",
@@ -187,6 +190,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Missing orders are on the list and were baked",
         "explains": "Customers finding nothing at pickup",
         "doesNotExplain": "Orders missing from the list",
+        "contradicts": "The owner says the missing orders were never on the list",
         "ruleOut": "Every missing order is also missing from the list",
         "cheapestCheck": "Match Saturday's pickups to names",
         "likelihood": "unlikely",
