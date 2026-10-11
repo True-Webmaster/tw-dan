@@ -29,7 +29,7 @@
     },
     {
       "id": 3,
-      "prompt": "/tw-dan choose depth 1 A plumbing client with a $4k/month budget asked whether we should move their money from Google Ads to Local Services Ads. Their Google Ads cost per lead has doubled this year. Which way should we go?",
+      "prompt": "/tw-dan choose depth 1 A florist spends $4k a month on a printed mailer and asked whether to move that money into a paid listing on a wedding directory. The mailer's cost per order has doubled this year. Which way should we go?",
       "expected_output": "A choice-mode report at depth 1: problemType.type is 'choose between options', the IS / IS NOT columns are the two options, the money-moving stream is door 'one-way' and waits for at least one check.",
       "files": [],
       "assertions": [

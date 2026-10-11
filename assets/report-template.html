@@ -164,7 +164,9 @@ __REPORT_DATA__
     cols.forEach(function (col, ci) {
       var y = padTop;
       col.forEach(function (it) {
-        var title = wrap(it.title, wrapAt), sub = it.sub ? wrap(it.sub, wrapAt + 4).slice(0, 3) : [], meta = it.meta ? wrap(it.meta, wrapAt + 6).slice(0, 2) : [];
+        // Cut long text to a few lines and end it with "…" so a cut never looks like a finished sentence.
+        var clip = function (lines, n) { if (lines.length <= n) return lines; var out = lines.slice(0, n); out[n - 1] = out[n - 1].replace(/[\s,;:.\-–—]+$/, "") + "…"; return out; };
+        var title = wrap(it.title, wrapAt), sub = it.sub ? clip(wrap(it.sub, wrapAt + 4), 3) : [], meta = it.meta ? clip(wrap(it.meta, wrapAt + 6), 2) : [];
         var h = 16 + title.length * lineH + (sub.length ? 6 + sub.length * 14 : 0) + (meta.length ? 6 + meta.length * 13 : 0) + 10;
         pos[it.id] = { x: 12 + ci * (W + gapX), y: y, h: h, title: title, sub: sub, meta: meta, it: it };
         y += h + gapY;
@@ -186,6 +188,7 @@ __REPORT_DATA__
     m.appendChild(svg("path", { d: "M0,0 L10,5 L0,10 z", fill: "currentColor", style: "color:var(--accent)" })); defs.appendChild(m); s.insertBefore(defs, s.firstChild);
     Object.keys(pos).forEach(function (id) {
       var p = pos[id], g = svg("g", {});
+      var tip = svg("title", {}); tip.textContent = [p.it.title, p.it.sub, p.it.meta].filter(Boolean).join("\n"); g.appendChild(tip);
       g.appendChild(svg("rect", { x: p.x, y: p.y, width: W, height: p.h, rx: 8, "class": "node" + (p.it.root ? " root" : "") + (p.it.warn ? " warn" : "") }));
       var ty = p.y + 20;
       p.title.forEach(function (line) { var t = svg("text", { x: p.x + 10, y: ty, "font-weight": 700 }); t.textContent = line; g.appendChild(t); ty += lineH; });

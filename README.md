@@ -49,7 +49,71 @@ Then:
 $tw-dan Our dental client's new-patient bookings dropped 30% since we launched their redesigned site. Traffic looks the same.
 ```
 
-**Requirements.** Python 3 for the build step (`scripts/fill.py`). If Python is missing, SKILL.md describes a manual fallback.
+## Set up for the best results
+
+tw-dan works with one tool. It works best with both.
+
+| Your setup | What you get |
+|---|---|
+| Claude Code **or** Codex, plus Python 3 | Everything: the quick setting (one mind, about ten minutes) and the thorough setting (three helpers and a judge, about thirty). The judge is a fresh helper from the same AI. |
+| Claude Code **and** the Codex CLI, both installed and logged in, plus Python 3 | Best. On the thorough setting, the finished map is checked by the *other* company's AI: Codex checks a map Claude made, and Claude checks a map Codex made. A checker from a different model family catches mistakes the first one is blind to. |
+
+**Checklist**
+
+1. **Install the skill** in the tool you'll run it from (see Install above).
+2. **Install Python 3** from [python.org](https://www.python.org/downloads/). It builds and checks the report. Without it the skill still works, but the checks don't run.
+3. **Install the other tool and log in once.** Each needs its own account (a paid plan or an API key).
+   - Claude Code: [code.claude.com/docs/en/setup](https://code.claude.com/docs/en/setup), then run `claude` once and log in.
+   - Codex CLI: [developers.openai.com/codex/cli](https://learn.chatgpt.com/docs/codex/cli), then run `codex` once and log in.
+4. **Test that each one answers from the terminal**, without opening it. Run both:
+
+   ```bash
+   claude -p "Reply with OK"
+   ```
+
+   ```bash
+   codex exec --skip-git-repo-check "Reply with OK"
+   ```
+
+   Both should print OK. If one asks you to log in, says it isn't found, or errors, fix that first. Otherwise the skill quietly uses a same-family judge instead; the report says which judge ran.
+
+   **If a test fails:**
+   - *Claude says "OAuth session expired" or asks you to log in:* run `claude`, type `/login`, then test again. Being logged in inside the app doesn't always log in the terminal command.
+   - *Codex says a model "is not supported" or something looks out of date:* run `codex --version` and compare it with the latest release. Some computers end up with two copies of Codex, and the terminal runs the older one. Update or remove the old copy so the new one runs.
+5. **Allow the cross-check when asked.** The first time, your tool asks permission to run the other one. Say yes.
+6. **Keep both up to date.** See "Update both tools" below.
+
+**Update both tools** before an important run, just in case. An old version can fail the cross-check, and the skill then falls back to a same-family judge.
+
+Claude Code:
+
+```bash
+claude update
+```
+
+Installed it with Homebrew? `brew upgrade claude-code`. With WinGet? `winget upgrade Anthropic.ClaudeCode`. With npm? `npm install -g @anthropic-ai/claude-code@latest`.
+
+Codex:
+
+```bash
+codex update
+```
+
+Installed it with npm? `npm install -g @openai/codex@latest`.
+
+Then close and reopen your terminal, and check both version numbers:
+
+```bash
+claude --version
+```
+
+```bash
+codex --version
+```
+
+If a number didn't change, an older second copy may be the one your terminal runs (see "If a test fails").
+
+**Cost.** The thorough setting runs three helpers and a judge, so it uses several times more of your plan than the quick one. Use `quick` when the problem is small.
 
 ## How to use it
 
@@ -73,7 +137,7 @@ A run takes about ten minutes alone, about thirty with helpers. The skill writes
 - Write the deliverable (the ad, the page, the email).
 - Run a ranking or site audit that needs live data.
 - Find a bug in a specific piece of code. A slow system, or a dispute about where a fault lies, is fine.
-- Interview you. It assumes and labels every assumption with what changes if it's wrong.
+- Interview you at length. Beyond the three quick choices, and up to three questions if you pick "ask first", it assumes and labels every assumption with what changes if it's wrong.
 
 ## How it was tested
 
