@@ -80,7 +80,15 @@ footer{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
 .stepback .col-title{color:var(--accent)}
 .stepback .warn{border-left:4px solid var(--warn)}
 .stepback .warn .col-title{color:var(--warn)}
-@media print{section{break-inside:avoid;box-shadow:none}html{background:#fff}}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:8px 0;font-size:13px}
+.jump a{color:var(--accent);text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.jump a:hover{border-color:var(--accent)}
+@media (min-width:900px){.jump{position:sticky;top:0;background:var(--bg);z-index:2}}
+section{scroll-margin-top:64px}
+.nextcard{border:2px solid var(--accent);background:var(--accent-soft);margin:14px 0 4px}
+.nextcard p{font-weight:600;margin:0}.nextcard p.legend{font-weight:400}
+.decide .card{border-left:4px solid var(--accent)}.decide .card.oneway{border-left:4px solid var(--bad)}
+@media print{section{break-inside:avoid;box-shadow:none}html{background:#fff}.jump{display:none}}
 </style>
 </head>
 <body>
@@ -204,8 +212,11 @@ __REPORT_DATA__
   // Summary, with how much to trust it and what would make it wrong.
   var conf = data.confidence || {};
   var confKind = { low: "unknown", moderate: "strong", high: "pass" };
+  var na = data.nextAction;
+  var naText = !na ? "" : typeof na === "string" ? na : (na.action || ""), naMeta = !na || typeof na === "string" ? "" : [na.owner ? "Who: " + na.owner : "", na.by ? "By: " + na.by : "", na.rulesOut ? "Settles: " + na.rulesOut : ""].filter(Boolean).join(" · ");
   var sum = section("Answer first", "Summary", null, [
     el("ol", {}, arr(data.summary).map(function (s) { return el("li", { text: s }); })),
+    na ? el("div", { cls: "card nextcard" }, [el("div", { cls: "col-title", text: "Do this next" }), el("p", { text: naText }), naMeta ? el("p", { cls: "legend", text: naMeta }) : null]) : null,
     conf.level ? el("p", { cls: "if", style: "margin-top:12px" }, [badge(confKind[String(conf.level).toLowerCase()] || "unknown", "Confidence: " + conf.level), conf.why ? " " + conf.why : ""]) : null,
     arr(data.restsOn).length ? el("p", { cls: "if" }, [el("b", { text: "This answer rests on: " })].concat(arr(data.restsOn).map(function (r, i) { var b = String(r.basis || "assumed").toLowerCase(); return el("span", {}, [(i ? "; " : ""), r.fact || "", " ", badge({ measured: "pass", reported: "unknown", assumed: "no", outside: "unknown" }[b] || "unknown", b)]); }))) : null,
     arr(data.revisions).length ? el("div", { cls: "legend" }, [el("b", { text: "Changed since the last run: " })].concat(arr(data.revisions).map(function (r) { return el("span", { text: (r.date ? r.date + ": " : "") + (r.changed || "") + " " }); }))) : null
@@ -359,6 +370,26 @@ __REPORT_DATA__
     fails.length ? el("div", { style: "margin-top:12px" }, [el("h3", { text: "If the fix fails, it is probably because" })].concat(fails.map(function (w) { return el("p", { cls: "if" }, [el("b", { text: w.name + ": " }), w.failsIf]); }))) : null
   ], pa.skipped));
 
+  // Where you decide: the streams only a human can take, and the ones that can't be undone.
+  var allStreams = arr(pa.streams), streamById = {}; allStreams.forEach(function (w) { streamById[w.id] = w; });
+  function streamNames(ids) { return arr(ids).map(function (i) { return streamById[i] ? streamById[i].name : i; }).join(", "); }
+  var decisions = allStreams.filter(function (w) { return /^decide/i.test(String(w.kind || "")) || /^one/i.test(String(w.door || "")); });
+  if (allStreams.length) {
+    var dSec = section("Where you decide", "The calls only a human can make", decisions.length ? "The map can gather the evidence; these are the points where it stops and a person chooses. Nothing that can't be undone runs before the checks it waits for." : "No call falls to you yet: every stream in this map is a reversible check. The decisions come once the records are in.", [
+      decisions.length ? el("div", { cls: "grid g2" }, decisions.map(function (w) {
+        var oneWay = /^one/i.test(String(w.door || "")), isDecision = /^decide/i.test(String(w.kind || ""));
+        return el("div", { cls: "card" + (oneWay ? " oneway" : "") }, [
+          el("h3", {}, [(w.name || "") + " ", isDecision ? badge("strong", "decision") : null, isDecision && oneWay ? " " : null, oneWay ? badge("fail", "can't be undone") : null]),
+          el("p", { cls: "why", text: w.brief || "" }),
+          w.who ? el("p", { cls: "if" }, [el("b", { text: isDecision ? "Whose call: " : "Who does it: " }), w.who]) : null,
+          el("p", { cls: "if" }, [el("b", { text: "Waits for: " }), arr(w.waitsFor).length ? streamNames(w.waitsFor) : "nothing; it can happen now"]),
+          w.returns ? el("p", { cls: "if" }, [el("b", { text: "Settles: " }), w.returns]) : null
+        ]);
+      })) : null
+    ]);
+    dSec.classList.add("decide"); app.appendChild(dSec);
+  }
+
   // 5 Rubric
   var ru = data.rubric || {};
   var statusLabel = { pass: "Pass", fail: "Fail", unknown: "Not checked" };
@@ -391,7 +422,7 @@ __REPORT_DATA__
   var fcs = arr(data.factChecks), cov = data.coverageTest, rev = arr(data.review), team = String(data.builtBy || "").toLowerCase() === "team";
   if (fcs.length || cov || rev.length || data.builtBy) {
     var fcKind = { held: "pass", corrected: "strong", unchecked: "unknown" };
-    app.appendChild(section("Checked", "How this map was checked", team ? "Built by three helpers and a judge; one mind did the merging. Below: what the judge found and what was done about it, the outside facts, and the test that every failure fits exactly one part." : "Built by one agent, checked against itself. Below: the outside facts and the test that every failure fits exactly one part.", [
+    app.appendChild(section("Checked", "How this map was checked", team ? "Built by three helpers and a judge" + (data.judgedBy ? " (" + data.judgedBy + ")" : "") + "; one mind did the merging. Below: what the judge found and what was done about it, the outside facts, and the test that every failure fits exactly one part." : "Built by one agent, checked against itself. Below: the outside facts and the test that every failure fits exactly one part.", [
       rev.length ? el("ul", { cls: "facts" }, rev.map(function (r) { return el("li", {}, [badge(r.fixed ? "pass" : "unknown", r.fixed ? "fixed" : "kept"), " ", r.finding || "", r.field ? el("span", { cls: "why", text: " · " + r.field }) : null, r.note ? el("span", { cls: "why", text: " · " + r.note }) : null]); })) : null,
       rev.length ? el("h3", { text: "Outside facts", style: "margin-top:14px" }) : null,
       fcs.length ? el("ul", { cls: "facts" }, fcs.map(function (c) { var r = String(c.result || "unchecked").toLowerCase(); return el("li", {}, [badge(fcKind[r] || "unknown", r), " ", c.fact || "", c.note ? el("span", { cls: "why", text: " · " + c.note }) : null]); })) : el("p", { cls: "why", text: "No outside facts were brought in." }),
@@ -413,11 +444,19 @@ __REPORT_DATA__
     ])]));
   }
 
-  // Next action
-  var na = data.nextAction;
+  // Next action (also shown under "Answer first").
   if (na) {
-    var naText = typeof na === "string" ? na : (na.action || ""), naMeta = typeof na === "string" ? "" : [na.owner ? "Who: " + na.owner : "", na.by ? "By: " + na.by : "", na.rulesOut ? "Settles: " + na.rulesOut : ""].filter(Boolean).join(" · ");
     var nx = section("Do this next", "Next action", null, [el("p", { text: naText }), naMeta ? el("p", { cls: "legend", text: naMeta }) : null]); nx.classList.add("next"); app.appendChild(nx);
+  }
+
+  // Jump links: one per section, in reading order.
+  var secs = Array.prototype.slice.call(app.querySelectorAll("section"));
+  if (secs.length > 3) {
+    app.insertBefore(el("nav", { cls: "jump", "aria-label": "Sections" }, secs.map(function (s, i) {
+      var label = ((s.querySelector(".sec-num") || {}).textContent || "Section " + (i + 1)).trim();
+      s.id = "sec-" + (label.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || String(i));
+      return el("a", { href: "#" + s.id, text: label });
+    })), sum);
   }
 
   app.appendChild(el("footer", { text: "Made with the tw-dan skill (Human in the Loop map) · Yan Gonzalez, True Webmaster · You can outsource intelligence, but not judgment." }));
