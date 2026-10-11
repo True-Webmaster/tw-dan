@@ -302,6 +302,7 @@ __REPORT_DATA__
           h.predicts ? el("p", { cls: "if" }, [el("b", { text: L.predicts }), h.predicts]) : null,
           h.explains ? el("p", { cls: "if" }, [el("b", { text: "Explains: " }), h.explains]) : null,
           h.doesNotExplain ? el("p", { cls: "if" }, [el("b", { text: "Doesn't explain: " }), h.doesNotExplain]) : null,
+          h.contradicts ? el("p", { cls: "if" }, [el("b", { text: "Sits badly with: " }), h.contradicts]) : null,
           h.ruleOut ? el("p", { cls: "if" }, [el("b", { text: L.ruleOut }), h.ruleOut]) : null,
           h.cheapestCheck ? el("p", { cls: "if" }, [el("b", { text: L.cheapest }), h.cheapestCheck]) : null,
           h.evidence ? el("p", { cls: "if" }, [el("b", { text: "Evidence so far: " }), h.evidence]) : null
