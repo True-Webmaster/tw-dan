@@ -250,6 +250,18 @@ __REPORT_DATA__
     treeBox
   ]));
 
+  // Thinking it through: the questions the agent asked itself about this problem, and its answers.
+  var wt = arr(data.walkthrough);
+  if (wt.length) {
+    var r1 = wt.filter(function (w) { return w.round !== 2; }), r2 = wt.filter(function (w) { return w.round === 2; });
+    function qa(list) { return el("div", { cls: "grid g2" }, list.map(function (w) { return el("div", { cls: "card" }, [el("h3", { text: w.question || "" }), el("p", { cls: "why", text: w.answer || "" })]); })); }
+    app.appendChild(section("Thinking it through", "Questions asked and answered before judging", "Written from this problem, answered as if standing there. The explanations below come from these answers.", [
+      qa(r1),
+      r2.length ? el("h3", { text: "What those answers raised", style: "margin-top:18px" }) : null,
+      r2.length ? qa(r2) : null
+    ]));
+  }
+
   // Diagnose: the gap, IS / IS NOT, competing explanations, contributing factors.
   var hyp = arr(dec.hypotheses), iin = dec.isIsNot || {}, facts = arr(data.facts), changes = arr(dec.changes), real = dec.isItReal;
   if (hyp.length || arr(iin.rows).length || dec.gap || facts.length) {

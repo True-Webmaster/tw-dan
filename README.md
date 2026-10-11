@@ -9,6 +9,7 @@ It comes from Yan Gonzalez's talk *Human in the Loop* (True Webmaster). The talk
 One HTML file that works offline, with:
 
 - **The facts as given**, each marked measured, reported or assumed, and your own theory turned into a question that competes with the others on equal terms.
+- **The questions it asked itself** about your problem before judging, with its answers, so you can see the thinking and not just the conclusion.
 - **The parts of the problem** and how they connect, as a graph, with a breakdown you can open one, two or three levels deep.
 - **Competing explanations**, each with what the records would show if it were true, the evidence that would rule it out, the cheapest way to get that evidence, and a rough percentage.
 - **Blind spots**: things you probably don't know to ask about.

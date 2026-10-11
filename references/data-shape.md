@@ -43,6 +43,48 @@ This example is about an unrelated business on purpose. It shows the format only
       "basis": "assumed"
     }
   ],
+  "walkthrough": [
+    {
+      "round": 1,
+      "question": "What does a Friday-night order look like from the customer's side, minute by minute, after they press pay?",
+      "answer": "They get a payment confirmation from the card processor and a thank-you page. Nothing tells them whether the shop has seen it. They assume Saturday is fine because the site let them choose it."
+    },
+    {
+      "round": 1,
+      "question": "Who prints the baking list on Thursday night, from what, and what happens to an order that arrives at 9 pm Friday?",
+      "answer": "The owner prints it from the order dashboard at about 8 pm Thursday and bakes from paper. A Friday order sits in the dashboard with nobody looking; it only exists if someone refreshes the screen before baking starts at 4 am."
+    },
+    {
+      "round": 1,
+      "question": "What does the Saturday counter person have in front of them when a customer says 'I ordered online'?",
+      "answer": "The printed list and a box of bagged orders with names on them. If the name is not on the list, they search the dashboard on the shop tablet, find the order, and have nothing to hand over."
+    },
+    {
+      "round": 1,
+      "question": "Which orders pass through this path but are not weekend pre-orders: test orders, cancelled orders, orders for Sunday?",
+      "answer": "The form takes any date, so Sunday and weekday orders are mixed into the same dashboard. A Thursday print that filters by 'Saturday' could miss an order with a mistyped date; a cancelled order might still be baked."
+    },
+    {
+      "round": 1,
+      "question": "What does the order dashboard show that the printed list cannot, and the reverse?",
+      "answer": "The dashboard shows order time, payment status and any later edits; the paper shows only name, items and pickup day. A customer who edited an order Friday morning appears correct on screen and wrong on paper."
+    },
+    {
+      "round": 1,
+      "question": "If I stood in the bakery at 4 am Saturday for an hour, what would I notice about how the list is used?",
+      "answer": "Whether anyone looks at the dashboard at all, whether the list is annotated by hand, and whether orders are bagged and labelled as they come out or in one batch at the end, where names get swapped."
+    },
+    {
+      "round": 2,
+      "question": "Does the form actually accept orders after the Thursday print, and what does it promise the customer when it does?",
+      "answer": "Unknown; the test order on Friday morning settles it. If it accepts and confirms, every late order is lost by design and the fix is a cut-off, not a person."
+    },
+    {
+      "round": 2,
+      "question": "How many of last Saturday's missing orders were placed after 8 pm Thursday?",
+      "answer": "Unknown until the order times are read against the print time; if most were, the cut-off explanation leads on its own, and if none were, copying or bagging leads."
+    }
+  ],
   "decompose": {
     "depth": 3,
     "gap": "About 1 in 10 weekend pre-orders (roughly 4 of 40 a week) is missing or not ready at pickup; the owner expects none.",

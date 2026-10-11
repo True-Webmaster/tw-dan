@@ -208,6 +208,22 @@ def main():
     na = data.get("nextAction")
     if not na or (isinstance(na, dict) and not na.get("action")):
         problems.append("Missing 'nextAction'.")
+    wt = data.get("walkthrough")
+    if not isinstance(wt, list):
+        problems.append("Missing 'walkthrough': the questions you wrote about this problem and your answers (at least six in round 1, two in round 2).")
+    else:
+        r1 = [w for w in wt if w.get("round") == 1]
+        r2 = [w for w in wt if w.get("round") == 2]
+        if len(r1) < 6:
+            problems.append(f"The walkthrough has {len(r1)} round-1 questions; write at least six, each naming something from this problem.")
+        if len(r2) < 2:
+            problems.append(f"The walkthrough has {len(r2)} round-2 questions; write at least two that your round-1 answers raised.")
+        for w in wt:
+            if not w.get("question") or not w.get("answer"):
+                problems.append("Every walkthrough entry needs a 'question' and an 'answer'.")
+                break
+            if len(str(w.get("answer")).split()) < 15:
+                problems.append(f"Walkthrough answer to '{str(w.get('question'))[:60]}' is too short; answer as if you were there, two or three sentences.")
     fc = data.get("factChecks")
     if not isinstance(fc, list):
         problems.append("Missing 'factChecks': list every 'verify:' fact with result held or corrected (an empty list means you brought no outside facts).")
@@ -245,6 +261,7 @@ def main():
             print(f"  [{name}] skipped: {sec['skipped']}")
         elif sec.get("takeaway"):
             print(f"  [{name}] {sec['takeaway']}")
+    print(f"Walkthrough: {len([w for w in wt if w.get('round') == 1])} questions in round 1, {len([w for w in wt if w.get('round') == 2])} in round 2.")
     print("Fact checks:" + ("" if fc else " none brought from own knowledge"))
     for c in fc:
         print(f"  [{c.get('result')}] {c.get('fact')}")
