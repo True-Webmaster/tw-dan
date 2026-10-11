@@ -167,7 +167,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Missing orders are spread across the week with no time pattern",
         "explains": "Random missing orders",
         "doesNotExplain": "A pattern by day or item",
-        "contradicts": "The owner says the list comes out of the order system, which would leave nothing to copy",
+        "contradicts": "none yet",
         "ruleOut": "The list is printed straight from the order system",
         "cheapestCheck": "Watch the list being made once",
         "likelihood": "possible",
@@ -178,7 +178,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Paid orders exist in the payment account but not in the order list",
         "explains": "Orders the owner never saw",
         "doesNotExplain": "Orders that are on the list but not ready",
-        "contradicts": "No customer has complained of paying without a confirmation",
+        "contradicts": "none yet",
         "ruleOut": "Every paid order appears in the order list",
         "cheapestCheck": "Match the payment account to the order list for one week",
         "likelihood": "possible",
@@ -190,7 +190,7 @@ This example is about an unrelated business on purpose. It shows the format only
         "predicts": "Missing orders are on the list and were baked",
         "explains": "Customers finding nothing at pickup",
         "doesNotExplain": "Orders missing from the list",
-        "contradicts": "The owner says the missing orders were never on the list",
+        "contradicts": "none yet",
         "ruleOut": "Every missing order is also missing from the list",
         "cheapestCheck": "Match Saturday's pickups to names",
         "likelihood": "unlikely",
@@ -328,7 +328,7 @@ This example is about an unrelated business on purpose. It shows the format only
           "s1",
           "s2"
         ],
-        "who": "client",
+        "who": "you",
         "kind": "fix",
         "door": "one-way",
         "returns": "Two clean Saturdays",
@@ -402,19 +402,19 @@ This example is about an unrelated business on purpose. It shows the format only
   ],
   "openQuestions": [
     {
-      "question": "Who builds the baking list, and when?",
+      "question": "Which day and time is the baking list printed?",
       "whoCanAnswer": "The owner",
       "ourGuess": "The owner, Thursday night, printed from the dashboard",
-      "changesWhat": "Which of the two leading explanations to check first"
+      "changesWhat": "Whether the cut-off explanation stays in the lead"
     },
     {
       "question": "Does the order form accept a Saturday order on Friday?",
-      "whoCanAnswer": "The owner, or a test order",
+      "whoCanAnswer": "The owner",
       "ourGuess": "Yes, with no warning",
       "changesWhat": "Whether the fix is a cut-off or a person"
     },
     {
-      "question": "Are the missing orders paid, and when did the payment settle?",
+      "question": "Were the missing orders paid?",
       "whoCanAnswer": "The owner's payment provider",
       "ourGuess": "Paid, settled within minutes",
       "changesWhat": "Whether 'unpaid' is a reason an order was skipped"
@@ -423,7 +423,7 @@ This example is about an unrelated business on purpose. It shows the format only
   "factChecks": [
     {
       "fact": "Online order forms usually have no cut-off unless one is set",
-      "result": "held",
+      "result": "unchecked",
       "note": "Depends on the form tool; the Friday test order settles it."
     }
   ],
@@ -435,7 +435,7 @@ This example is about an unrelated business on purpose. It shows the format only
   "nextAction": {
     "action": "Match last Saturday's online orders to that week's baking list, noting each missing order's time.",
     "owner": "you",
-    "by": "Tomorrow",
+    "by": "Today",
     "rulesOut": "Separates the cut-off explanation from copying and pickup in one pass."
   }
 }

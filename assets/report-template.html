@@ -227,7 +227,7 @@ __REPORT_DATA__
   var dec = data.decompose || {};
   var build = /build/i.test(String((dec.problemType || {}).type || ""));
   var L = build ? { gap: "The goal: ", real: "Is it worth it? ", impact: "What it is worth: ", detect: "How we will know it worked: ", changes: "What exists today", graph: "Building blocks and build order", legend: "Arrows point from a block to the blocks that need it built first. Left column: start here.", diagTitle: "Which approach", diagHead: "Choose the approach", diagTake: "Don't build the whole thing until the smallest test tells these approaches apart.", hyps: "Competing approaches", predicts: "If right, the first checkpoint shows: ", ruleOut: "Wrong if: ", cheapest: "Smallest test: ", isnot: "Compared with what already works" }
-                : { gap: "The gap: ", real: "Is it real? ", impact: "What it costs: ", detect: "How it was noticed: ", changes: "What changed around the time it started", graph: "Parts of the problem and what depends on what", legend: "Arrows point from a part to the parts that depend on it. Left column: start here.", diagTitle: "Diagnose", diagHead: "What could explain it", diagTake: "Don't fix anything until the cheapest checks tell these explanations apart.", hyps: "Competing explanations", predicts: "If true, the records show: ", ruleOut: "Ruled out if: ", cheapest: "Cheapest check: ", isnot: "IS / IS NOT" };
+                : { gap: "The gap: ", real: "Is it real? ", impact: "What it costs: ", detect: "How it was noticed: ", changes: "What changed around the time it started", graph: "Parts of the problem and what depends on what", legend: "Arrows point from a part to the parts that depend on it. Left column: start here.", diagTitle: "Diagnose", diagHead: "What could explain it", diagTake: "Don't fix anything until the checks that separate these explanations are in.", hyps: "Competing explanations", predicts: "If true, the records show: ", ruleOut: "Ruled out if: ", cheapest: "Cheapest check: ", isnot: "IS / IS NOT" };
   var parts = arr(dec.parts).map(function (p) { return { id: p.id, title: p.name, sub: p.question, deps: p.dependsOn, root: !arr(p.dependsOn).length, warn: !!p.danger, meta: p.danger ? "don't skip" : "" }; });
   // Breakdown tree: level 1 = the parts, level 2 and 3 = their children.
   var maxLevel = 1;
@@ -422,7 +422,7 @@ __REPORT_DATA__
   var fcs = arr(data.factChecks), cov = data.coverageTest, rev = arr(data.review), team = String(data.builtBy || "").toLowerCase() === "team";
   if (fcs.length || cov || rev.length || data.builtBy) {
     var fcKind = { held: "pass", corrected: "strong", unchecked: "unknown" };
-    app.appendChild(section("Checked", "How this map was checked", team ? "Built by three helpers and a judge" + (data.judgedBy ? " (" + data.judgedBy + ")" : "") + "; one mind did the merging. Below: what the judge found and what was done about it, the outside facts, and the test that every failure fits exactly one part." : "Built by one agent, checked against itself. Below: the outside facts and the test that every failure fits exactly one part.", [
+    app.appendChild(section("Checked", "How this map was checked", team ? (rev.length || data.judgedBy ? "Built by three helpers and a judge" + (data.judgedBy ? " (" + data.judgedBy + ")" : "") : "Built by three helpers; the judge has not run yet") + "; one mind did the merging. Below: what the judge found and what was done about it, the outside facts, and the test that every failure fits exactly one part." : "Built by one agent, checked against itself. Below: the outside facts and the test that every failure fits exactly one part.", [
       rev.length ? el("ul", { cls: "facts" }, rev.map(function (r) { return el("li", {}, [badge(r.fixed ? "pass" : "unknown", r.fixed ? "fixed" : "kept"), " ", r.finding || "", r.field ? el("span", { cls: "why", text: " · " + r.field }) : null, r.note ? el("span", { cls: "why", text: " · " + r.note }) : null]); })) : null,
       rev.length ? el("h3", { text: "Outside facts", style: "margin-top:14px" }) : null,
       fcs.length ? el("ul", { cls: "facts" }, fcs.map(function (c) { var r = String(c.result || "unchecked").toLowerCase(); return el("li", {}, [badge(fcKind[r] || "unknown", r), " ", c.fact || "", c.note ? el("span", { cls: "why", text: " · " + c.note }) : null]); })) : el("p", { cls: "why", text: "No outside facts were brought in." }),
@@ -432,7 +432,7 @@ __REPORT_DATA__
 
   // Assumptions and open questions. Each may be a plain string or an object.
   if (arr(data.assumptions).length || arr(data.openQuestions).length) {
-    app.appendChild(section("Check these", "Assumptions and open questions", "The map was built without asking you questions. Correct anything below and run it again.", [el("div", { cls: "grid g2" }, [
+    app.appendChild(section("Check these", "Assumptions and open questions", "Correct anything below, or answer it, and run the map again.", [el("div", { cls: "grid g2" }, [
       el("div", {}, [el("div", { cls: "col-title", text: "Assumed" }), el("ul", { cls: "assume" }, arr(data.assumptions).map(function (a) {
         if (typeof a === "string") return el("li", { text: a });
         return el("li", {}, [a.assumption || "", a.ifWrong ? el("span", { cls: "why", text: "If wrong: " + a.ifWrong }) : null, a.check ? el("span", { cls: "why", text: "Check: " + a.check }) : null]);
