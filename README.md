@@ -90,6 +90,8 @@ tw-dan/
 ├── references/data-shape.md   # a worked example of the data (about a bakery, on purpose)
 ├── references/team.md         # the three helpers and the judge
 ├── references/update.md       # what to do when the person replies with records or corrections
+├── references/build.md        # how every section changes when the task is to build something
+├── references/choose.md       # how every section changes when the task is a choice
 ├── assets/report-template.html# draws the report from the data, offline
 ├── scripts/fill.py            # validates the data and builds the report
 └── evals/evals.json           # test cases

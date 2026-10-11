@@ -31,11 +31,7 @@ The three vantages:
 - **The record-keeper.** "Follow how the number the person quoted gets made: who writes what down, in which tool, at which moment, under which rule. Where could the number move while nothing in the business moved?"
 - **The sceptic.** "Assume nothing is wrong with the business. What else would produce exactly these facts: timing, season, a comparison that isn't like for like, something that changed elsewhere, an expectation that was never realistic?"
 
-When the task is to build something, use these three instead, and replace "explanations for the facts" in the brief with "approaches that would get to the goal, each with what you would see at the first checkpoint if it is right, what would show it is wrong, and the smallest prototype that tells":
-
-- **The first user.** "Be the first person who uses the thing once it exists, from the moment they meet it to the moment it has done its job for them. Where would they stall, misunderstand, or get the result some other way?"
-- **The person who runs it.** "Be the person who has to operate, feed or maintain it every week after launch. What has to exist, be entered, be checked or be fixed for it to keep working, and what would quietly let it rot?"
-- **The sceptic.** "Assume it should not be built. What already does this job, what would make it unnecessary, and what is the simplest thing that gets most of the outcome?"
+When the task is to build something, use the three vantages in [build.md](build.md) instead, and change the brief as build.md says.
 
 ## 2. Merge
 
