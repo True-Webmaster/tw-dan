@@ -41,6 +41,20 @@
     },
     {
       "id": 4,
+      "prompt": "/tw-dan Help me plan a referral programme for a dental client: existing patients bringing in new patients. They have never had one.",
+      "expected_output": "A build-mode report: problemType.type is 'build something', the parts are building blocks with build order, one block is the measurement, the explanations are competing approaches including a simpler one, and the next action is the smallest piece to build or test, not the whole programme.",
+      "files": [],
+      "assertions": [
+        "fill.py exits 0 and prints 'Checks passed'",
+        "decompose.problemType.type equals 'build something'",
+        "At least one part is about how the result gets counted",
+        "At least one hypothesis is a simpler approach than the person's own",
+        "nextAction names a prototype, draft or test record, not the full build",
+        "Every stream with door 'one-way' has a non-empty waitsFor"
+      ]
+    },
+    {
+      "id": 5,
       "prompt": "Write the press release for our client's spring promotion.",
       "expected_output": "The skill does not trigger; this is a writing deliverable, not a problem to map.",
       "files": [],

@@ -20,16 +20,6 @@ This example is about an unrelated business on purpose. It shows the format only
     "level": "low",
     "why": "Built from the owner's description; no order records seen yet."
   },
-  "restsOn": [
-    {
-      "fact": "The baking list is printed once, on Thursday night",
-      "basis": "reported"
-    },
-    {
-      "fact": "Missing orders are mostly placed on Friday",
-      "basis": "assumed"
-    }
-  ],
   "facts": [
     {
       "fact": "Who: online pre-order customers collecting on Saturday",
@@ -54,6 +44,16 @@ This example is about an unrelated business on purpose. It shows the format only
     {
       "fact": "How long: the owner says 'a few weeks'",
       "basis": "reported"
+    }
+  ],
+  "restsOn": [
+    {
+      "fact": "The baking list is printed once, on Thursday night",
+      "basis": "reported"
+    },
+    {
+      "fact": "Missing orders are mostly placed on Friday",
+      "basis": "assumed"
     }
   ],
   "walkthrough": [

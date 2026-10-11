@@ -19,7 +19,7 @@ Do this, in writing, in order:
 2. Answer each one in two or three sentences as if you were standing there watching one instance. Mark every detail you supply yourself ("if the list is printed on Thursday, as they say").
 3. Read your answers. Ask of each: what does it assume, what else would produce the same thing, what would make its check impossible? Write the two or three questions that raised, and answer them.
 4. From your answers, list three to five explanations for the facts. For each give: name; what the records would show if it were true; the evidence that would rule it out; the cheapest check that gets that evidence (who runs it, what must be in hand first, what each result would mean).
-5. List the parts of the path you would inspect, each with one question and one check (where to look, what to write down).
+5. List the parts of the path you would inspect, each with one question and one check (where to look, what to write down). {For a build: list the building blocks and stages that together produce the goal, in build order, each with one question and one check.}
 
 Do not rank the explanations, give no percentages, no summary and no fix. A check may assume the ordinary records of such a business exist (invoices, a diary, a sign-in sheet) as long as it says what to do if they don't.
 Reply as one JSON object: {"walkthrough":[{"round":1,"question":"...","answer":"..."},{"round":2,"question":"...","answer":"..."}],"hypotheses":[{"name":"...","predicts":"...","ruleOut":"...","cheapestCheck":"..."}],"parts":[{"name":"...","question":"...","check":"..."}]}
@@ -31,17 +31,23 @@ The three vantages:
 - **The record-keeper.** "Follow how the number the person quoted gets made: who writes what down, in which tool, at which moment, under which rule. Where could the number move while nothing in the business moved?"
 - **The sceptic.** "Assume nothing is wrong with the business. What else would produce exactly these facts: timing, season, a comparison that isn't like for like, something that changed elsewhere, an expectation that was never realistic?"
 
+When the task is to build something, use these three instead, and replace "explanations for the facts" in the brief with "approaches that would get to the goal, each with what you would see at the first checkpoint if it is right, what would show it is wrong, and the smallest prototype that tells":
+
+- **The first user.** "Be the first person who uses the thing once it exists, from the moment they meet it to the moment it has done its job for them. Where would they stall, misunderstand, or get the result some other way?"
+- **The person who runs it.** "Be the person who has to operate, feed or maintain it every week after launch. What has to exist, be entered, be checked or be fixed for it to keep working, and what would quietly let it rot?"
+- **The sceptic.** "Assume it should not be built. What already does this job, what would make it unnecessary, and what is the simplest thing that gets most of the outcome?"
+
 ## 2. Merge
 
 - Put every helper's explanations in one list. Two explanations with the same rule-out evidence are one; keep the clearer wording. Keep anything with a distinct rule-out, even if only one helper found it, up to eight; past eight, fold the weakest into its nearest neighbour and say so in its `explains`.
-- Keep the walkthrough entries that led to a kept explanation, tagged with their `vantage` (customer, records, sceptic). Up to ten in round 1 and four in round 2; cut the rest. Do not reword a helper's text; it is their thinking, labelled as imagined where they said so. A fact from outside knowledge that first surfaces in a helper's answer gets its "verify:" in `factChecks`, not in the helper's words. What you write in the map's own fields must not repeat a helper's imagined detail as fact.
+- Keep the walkthrough entries that led to a kept explanation, tagged with their `vantage` (customer, records, sceptic; for a build: user, runs, sceptic). Up to twelve in round 1 and five in round 2; cut the rest. What you cut survives only as a part or a stream in your own words, labelled imagined where the helper said so. Do not reword a helper's text; it is their thinking, labelled as imagined where they said so. A fact from outside knowledge that first surfaces in a helper's answer gets its "verify:" in `factChecks`, not in the helper's words. What you write in the map's own fields must not repeat a helper's imagined detail as fact.
 - Union the parts; a part named by two helpers under different names is one part.
 - Then write everything else yourself (gap, is it real, what changed, IS / IS NOT, probabilities and likelihood, blind spots, abstract, reuse, streams, rubric, tests, assumptions, open questions, next action), as in method.md. Set `builtBy: "team"`.
 
 ## 3. The judge (one fresh helper, after fill.py passes once with `review: []`)
 
 ```text
-You are checking a diagnostic map, not writing one. Read nothing on disk and use no web.
+You are checking a map (a diagnosis, a choice or a build plan), not writing one. Read nothing on disk and use no web. Where the map says "explanations" read "explanations or approaches"; where it says "records" read "records or checkpoints". A fact marked "held" with "from memory" follows the skill's rule when no web tool exists; report it only if the map leans on it without saying so.
 FACTS the map was built from: {facts, with basis}
 THE MAP: {the whole JSON}
 
@@ -50,7 +56,7 @@ Answer each question with one-line findings, each naming the field it points at,
 2. Which checks would not tell at least two explanations apart?
 3. Which details are stated as fact in the map but were imagined in the walkthrough or supplied by the author?
 4. Does the next action tell apart the most explanations of any check in the map? If not, which check would?
-5. What would a sceptic who thinks nothing is wrong say the map is missing?
+5. What would a sceptic who thinks nothing is wrong (or, for a build, that it should not be built) say the map is missing?
 6. Which sentences would a business owner not understand?
 Reply as one JSON object: {"findings":[{"question":1,"finding":"...","field":"..."}]}
 ```

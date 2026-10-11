@@ -214,7 +214,10 @@ __REPORT_DATA__
 
   // 1 Decompose
   var dec = data.decompose || {};
-  var parts = arr(dec.parts).map(function (p) { return { id: p.id, title: p.name, sub: p.question, deps: p.dependsOn, root: !arr(p.dependsOn).length }; });
+  var build = /build/i.test(String((dec.problemType || {}).type || ""));
+  var L = build ? { gap: "The goal: ", real: "Is it worth it? ", impact: "What it is worth: ", detect: "How we will know it worked: ", changes: "What exists today", graph: "Building blocks and build order", legend: "Arrows point from a block to the blocks that need it built first. Left column: start here.", diagTitle: "Which approach", diagHead: "Choose the approach", diagTake: "Don't build the whole thing until the smallest test tells these approaches apart.", hyps: "Competing approaches", predicts: "If right, the first checkpoint shows: ", ruleOut: "Wrong if: ", cheapest: "Smallest test: ", isnot: "Compared with what already works" }
+                : { gap: "The gap: ", real: "Is it real? ", impact: "What it costs: ", detect: "How it was noticed: ", changes: "What changed around the time it started", graph: "Parts of the problem and what depends on what", legend: "Arrows point from a part to the parts that depend on it. Left column: start here.", diagTitle: "Diagnose", diagHead: "What could explain it", diagTake: "Don't fix anything until the cheapest checks tell these explanations apart.", hyps: "Competing explanations", predicts: "If true, the records show: ", ruleOut: "Ruled out if: ", cheapest: "Cheapest check: ", isnot: "IS / IS NOT" };
+  var parts = arr(dec.parts).map(function (p) { return { id: p.id, title: p.name, sub: p.question, deps: p.dependsOn, root: !arr(p.dependsOn).length, warn: !!p.danger, meta: p.danger ? "don't skip" : "" }; });
   // Breakdown tree: level 1 = the parts, level 2 and 3 = their children.
   var maxLevel = 1;
   function treeList(list, lvl) {
@@ -222,7 +225,7 @@ __REPORT_DATA__
     maxLevel = Math.max(maxLevel, lvl);
     return el("ul", { cls: "tree" }, arr(list).map(function (p) {
       return el("li", { "data-level": lvl }, [
-        el("div", { cls: "tnode" }, [el("span", { cls: "lvl", text: "L" + lvl }), el("strong", { text: p.name }), p.question ? el("span", { cls: "tq", text: " · " + p.question }) : null, p.check ? el("div", { cls: "why", text: "Check: " + p.check }) : null]),
+        el("div", { cls: "tnode" }, [el("span", { cls: "lvl", text: "L" + lvl }), el("strong", { text: p.name }), p.danger ? badge("fail", "don't skip") : null, p.question ? el("span", { cls: "tq", text: " · " + p.question }) : null, p.check ? el("div", { cls: "why", text: "Check: " + p.check }) : null]),
         treeList(p.children, lvl + 1)
       ]);
     }));
@@ -243,9 +246,9 @@ __REPORT_DATA__
     })(lv);
     treeBox.setAttribute("data-show", startLevel);
   }
-  app.appendChild(section("1 · Decompose", "Find the parts and how they connect", dec.takeaway, [
-    parts.length ? layered(parts, { nodeW: 230, wrapAt: 28, label: "Parts of the problem and what depends on what" }) : null,
-    el("p", { cls: "legend", text: "Arrows point from a part to the parts that depend on it. Left column: start here." }),
+  app.appendChild(section("1 · Decompose", build ? "Find the building blocks and the build order" : "Find the parts and how they connect", dec.takeaway, [
+    parts.length ? layered(parts, { nodeW: 230, wrapAt: 28, label: L.graph }) : null,
+    el("p", { cls: "legend", text: L.legend }),
     el("h3", { text: maxLevel > 1 ? "Breakdown, " + maxLevel + " levels deep" : "Breakdown", style: "margin-top:18px" }),
     levelBar,
     treeBox
@@ -255,7 +258,7 @@ __REPORT_DATA__
   var wt = arr(data.walkthrough);
   if (wt.length) {
     var r1 = wt.filter(function (w) { return w.round !== 2; }), r2 = wt.filter(function (w) { return w.round === 2; });
-    var vantageLabel = { customer: "the customer's path", records: "the record-keeper", sceptic: "the sceptic", self: "" };
+    var vantageLabel = { customer: "the customer's path", records: "the record-keeper", sceptic: "the sceptic", user: "the first user", runs: "the person who runs it", self: "" };
     function qa(list) { return el("div", { cls: "grid g2" }, list.map(function (w) { var v = String(w.vantage || "").toLowerCase(); return el("div", { cls: "card" }, [el("h3", {}, [w.question || "", v && vantageLabel[v] ? badge("no", vantageLabel[v]) : null]), el("p", { cls: "why", text: w.answer || "" })]); })); }
     app.appendChild(section("Thinking it through", "Questions asked and answered before judging", (String(data.builtBy || "").toLowerCase() === "team" ? "Three fresh helpers asked these from three vantages, then the answers were merged. " : "Written from this problem, answered as if standing there. ") + "The explanations below come from these answers.", [
       qa(r1),
@@ -275,32 +278,32 @@ __REPORT_DATA__
       return el("li", {}, [badge(basisKind[b] || "unknown", b), " ", f.fact || ""]);
     })));
     if (dec.gap || dec.problemType || real || dec.impact || dec.detection) diag.push(el("div", { cls: "card gapcard", style: facts.length ? "margin-top:14px" : "" }, [
-      dec.gap ? el("p", {}, [el("b", { text: "The gap: " }), dec.gap]) : null,
-      real ? el("p", { cls: "if" }, [el("b", { text: "Is it real? " }), (real.verdict || "") + (real.why ? " · " + real.why : "")]) : null,
-      dec.impact ? el("p", { cls: "if" }, [el("b", { text: "What it costs: " }), dec.impact]) : null,
-      dec.detection ? el("p", { cls: "if" }, [el("b", { text: "How it was noticed: " }), dec.detection]) : null,
+      dec.gap ? el("p", {}, [el("b", { text: L.gap }), dec.gap]) : null,
+      real ? el("p", { cls: "if" }, [el("b", { text: L.real }), (build ? ({ "outside normal": "clearly worth it", "inside normal": "marginal", "can't tell yet": "can't tell yet" }[String(real.verdict || "").toLowerCase()] || real.verdict || "") : (real.verdict || "")) + (real.why ? " · " + real.why : "")]) : null,
+      dec.impact ? el("p", { cls: "if" }, [el("b", { text: L.impact }), dec.impact]) : null,
+      dec.detection ? el("p", { cls: "if" }, [el("b", { text: L.detect }), dec.detection]) : null,
       dec.problemType ? el("p", { cls: "why" }, [el("b", { text: "Problem type: " }), (dec.problemType.type || "") + (dec.problemType.why ? " · " + dec.problemType.why : "")]) : null
     ]));
-    if (changes.length) diag.push(el("h3", { text: "What changed around the time it started", style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
+    if (changes.length) diag.push(el("h3", { text: L.changes, style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
       el("thead", {}, [el("tr", {}, [el("th", { text: "What" }), el("th", { text: "When" }), el("th", { text: "Who" })])]),
       el("tbody", {}, changes.map(function (c) { return el("tr", {}, [el("td", { text: c.what }), el("td", { text: c.when || "unknown" }), el("td", { text: c.who || "unknown" })]); }))
     ])]));
-    if (arr(iin.rows).length) diag.push(el("h3", { text: "IS / IS NOT", style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
+    if (arr(iin.rows).length) diag.push(el("h3", { text: L.isnot, style: "margin-top:18px" }), el("div", { cls: "table-wrap" }, [el("table", {}, [
       el("thead", {}, [el("tr", {}, [el("th", { text: "Dimension" }), el("th", { text: "IS: " + (iin.is || "the problem") }), el("th", { text: "IS NOT: " + (iin.isNot || "closest case that works") }), el("th", { text: "What's distinctive" })])]),
       el("tbody", {}, arr(iin.rows).map(function (r) { return el("tr", {}, [el("td", { text: r.dimension }), el("td", { text: r.is }), el("td", { text: r.isNot }), el("td", { text: r.distinction })]); }))
     ])]));
     if (hyp.length) {
       var open = hyp.filter(function (h) { return h.status !== "ruled out"; }), closed = hyp.filter(function (h) { return h.status === "ruled out"; });
-      diag.push(el("h3", { text: "Competing explanations", style: "margin-top:18px" }), el("div", { cls: "grid g2" }, open.map(function (h) {
+      diag.push(el("h3", { text: L.hyps, style: "margin-top:18px" }), el("div", { cls: "grid g2" }, open.map(function (h) {
         var k = lk[h.likelihood] || lk.possible;
         var label = k[1] + (h.probability != null ? " · " + h.probability + "%" : "");
         return el("div", { cls: "card hyp" + (h.status === "confirmed" ? " confirmed" : "") }, [
           el("h3", {}, [h.name + " ", badge(h.status === "confirmed" ? "pass" : k[0], h.status === "confirmed" ? "Confirmed" : label), h.danger ? badge("fail", "Check first") : null]),
-          h.predicts ? el("p", { cls: "if" }, [el("b", { text: "If true, the records show: " }), h.predicts]) : null,
+          h.predicts ? el("p", { cls: "if" }, [el("b", { text: L.predicts }), h.predicts]) : null,
           h.explains ? el("p", { cls: "if" }, [el("b", { text: "Explains: " }), h.explains]) : null,
           h.doesNotExplain ? el("p", { cls: "if" }, [el("b", { text: "Doesn't explain: " }), h.doesNotExplain]) : null,
-          h.ruleOut ? el("p", { cls: "if" }, [el("b", { text: "Ruled out if: " }), h.ruleOut]) : null,
-          h.cheapestCheck ? el("p", { cls: "if" }, [el("b", { text: "Cheapest check: " }), h.cheapestCheck]) : null,
+          h.ruleOut ? el("p", { cls: "if" }, [el("b", { text: L.ruleOut }), h.ruleOut]) : null,
+          h.cheapestCheck ? el("p", { cls: "if" }, [el("b", { text: L.cheapest }), h.cheapestCheck]) : null,
           h.evidence ? el("p", { cls: "if" }, [el("b", { text: "Evidence so far: " }), h.evidence]) : null
         ]);
       })));
@@ -308,7 +311,7 @@ __REPORT_DATA__
       diag.push(el("p", { cls: "legend", text: "Leading: the front-runner on the evidence in hand. Possible: could be, not yet separated from the others. Unlikely: would need something surprising to be true. Percentages are rough and add to 100. \"Check first\" marks an explanation that is cheap to miss and costly if true." }));
     }
     if (arr(dec.contributingFactors).length) diag.push(el("h3", { text: "Factors that may only cause it together", style: "margin-top:18px" }), el("ul", {}, arr(dec.contributingFactors).map(function (f) { return el("li", { text: f }); })));
-    app.appendChild(section("Diagnose", "What could explain it", "Don't fix anything until the cheapest checks tell these explanations apart.", diag));
+    app.appendChild(section(L.diagTitle, L.diagHead, L.diagTake, diag));
   }
 
   // Unknown unknowns: blind spots the person may not know to ask about.

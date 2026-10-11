@@ -1,6 +1,6 @@
 # tw-dan: the Human in the Loop map
 
-A skill for Claude Code and Codex. You describe a client problem in one or two sentences; it thinks it through the way an engineer would and hands you one page you can read in five minutes and act on.
+A skill for Claude Code and Codex. You describe a client problem, a choice between two options, or something you need to build (a plan, a system, a campaign, a process) in one or two sentences; it thinks it through the way an engineer would and hands you one page you can read in five minutes and act on.
 
 It comes from Yan Gonzalez's talk *Human in the Loop* (True Webmaster). The talk's point: you can hand the thinking to an AI, but the judgment stays with you. This skill shows where.
 
@@ -58,6 +58,12 @@ $tw-dan Our dental client's new-patient bookings dropped 30% since we launched t
 4. **Reply with what you found.** The skill updates the same file and says in one line what changed.
 
 A run takes about ten minutes alone, about thirty with helpers. The skill writes two files in your current folder: `tw-dan-<problem>-<date>.json` (the data; keep it, it's what gets updated) and `tw-dan-<problem>-<date>.html` (the report).
+
+## Three kinds of task
+
+- **Something is wrong** ("bookings dropped 30% since the redesign"): the map finds where the problem lives and which record settles it.
+- **A choice** ("should we move the budget from A to B?"): the parts are the dimensions the choice turns on, the columns compare the two options, and the summary picks one conditionally when the evidence can't yet decide.
+- **Something to build** ("plan a referral programme", "set up monthly reporting"): the parts are the building blocks in build order, one of them always the measurement; the explanations become competing approaches, including a simpler one; and the next action is the smallest piece to build or test today, never the whole thing.
 
 ## What it won't do
 
